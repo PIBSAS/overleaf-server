@@ -117,3 +117,6 @@ Si falla remover y levantar:
 
 Èntrar:
 - ``http://IP:80/``
+
+Si ves el login, anda aca y crea la cuenta:
+- ``http://IP/launchpad``
