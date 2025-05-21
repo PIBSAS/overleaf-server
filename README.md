@@ -157,3 +157,22 @@ Si ves el login, anda aca y crea la cuenta:
 - ````
   http://IP/launchpad
   ````
+
+# Actualizar o instalar extras en el docker creado:
+- ````
+  docker exec -it sharelatex bash
+  apt update
+  apt install hunspell-es
+  tlmgr install babel-spanish hyphen-spanish collection-langspanish
+  tlmgr update --all
+  exit
+  ````
+- Reiniciar Overleaf Toolkit:
+- ````
+  cd ~/overleaf-toolkit
+  ./bin/restart
+  ````
+  O:
+- ````
+  docker restart sharelatex
+  ````
