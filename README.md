@@ -1,52 +1,80 @@
-# overleaf-server
+# Overleaf Server
 Pasos completos!
 
 
 # Ubuntu Server 25.04 Raspberry Pi
 
 ## Requisitos:
-- Git: ``sudo apt install git -y``
-- Docker-Compose: ```sudo apt install docker.io docker-compose docker-buildx -y```
-- Add user to docker group: ```sudo usermod -aG docker $USER```
-- Reboot: ```reboot```
-- fork & Clone Overleaf: ``gh repo clone PIBSAS/overleaf`` or ``git clone https://github.com/PIBSAS/overleaf.git``
-- Clone Overleaf Toolkit:
+- Git:
+  ````
+  sudo apt install git -y
+  ````
+- Docker-Compose:
+  ````
+  sudo apt install docker.io docker-compose docker-buildx -y
+  ````
+- Agregar usuario al grupo docker:
+  ````
+  sudo usermod -aG docker $USER
+  ````
+- Reiniciar:
+  ````
+  reboot
+  ````
+- Fork & Clone Overleaf:
+  ````
+  gh repo clone PIBSAS/overleaf
+  ````
+  or
+  ````
+  git clone https://github.com/PIBSAS/overleaf.git
+  ````
+- Clonar Overleaf Toolkit:
   ````
   git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
   ````
 
-Portar a ARM64 para Raspberry Pi
-- ``cd overleaf/server-ce/``
-- ``export DOCKER_BUILDKIT=1``
-- ``docker build -t local-sharelatex-base:arm64 -f Dockerfile-base .``
+# Portar a ARM64 para Raspberry Pi:
+- ````
+  cd overleaf/server-ce/
+  ````
+- ````
+  export DOCKER_BUILDKIT=1
+  ````
+- ````
+  docker build -t local-sharelatex-base:arm64 -f Dockerfile-base .
+  ````
 - Modificar el ``Dockerfile`` para que use el port creado.
-- ``nano Dockerfile``
-- Editamos ``FROM local-sharelatex-base:arm64`` Guardamos
-- ``
+  ````
+  nano Dockerfile
+  ````
+- Cambiamos de ``FROM $OVERLEAF_BASE_TAG`` a ``FROM local-sharelatex-base:arm64`` Guardamos
+- ````
   cd ~/overleaf
-  ``.
-- ``
+  ````
+- Construimos:
+- ````
   docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
-  ``
-- Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
-  ``
+  ````
+# Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
+  ````
   cd & cd ./overleaf-toolkit
-  bin/init
-  ``
-- Una vez iniciado editamos `` overleaf.rc ``
+  ./bin/init
+  ````
+- Una vez iniciado editamos `` overleaf.rc ``:
   
-  ``
+- ````
   cd && nano overleaf-toolkit/config/overleaf.rc
-  ``
+  ````
 - Descomentar y modificar:
-  ``
+- ````
   # OVERLEAF_IMAGE_NAME=sharelatex/sharelatex
-  ``
+  ````
 
-- y cambiar a :
-  ``
+- Cambiar a :
+- ````
   OVERLEAF_IMAGE_NAME=local-sharelatex:arm64
-  ``
+  ````
 - Y:
 - ``OVERLEAF_LISTEN_IP=127.0.0.1`` a:
   ``
@@ -58,17 +86,15 @@ Portar a ARM64 para Raspberry Pi
   nano overleaf-toolkit/lib/shared-functions.sh
   ``
   
-  Agregamos ``:$version`` en el if else lo siguiente:
+- Agregamos ``:$version`` en el if else:
   - `` image_name="quay.io/sharelatex/sharelatex-pro" ``
   - `` image_name="sharelatex/sharelatex" ``
-  - 
-  Y a ``export IMAGE="$image_name:$version" `` se lo quitamos:
-  ``
-  export IMAGE="$image_name"
-  ``
-
-  Quedando asi:
   
+- Y a ``export IMAGE="$image_name:$version" `` se lo quitamos:
+  ````
+  export IMAGE="$image_name"
+  ````
+- Quedando asi:
 - ````
   function set_server_pro_image_name() {
     local version=$1
@@ -86,19 +112,26 @@ Portar a ARM64 para Raspberry Pi
     }
   ````
 
-
 ## Levantar Overleaf Toolkit:
 - ````
   cd ..
   ./bin/up
   ````
 
-Si falla remover y levantar:
-- ``docker rm -f overleaf sharelatex redis mongo``
-- ``docker rmi local-sharelatex:arm64``
+- Si falla remover y levantar:
+- ````
+  docker rm -f overleaf sharelatex redis mongo
+  ````
+- ````
+  docker rmi local-sharelatex:arm64
+  ````
 - Si dice que esta en uso detener con la id y repetir:
-- ``docker stop 30ff1a83345e25``
-- ``docker rmi local-sharelatex:arm64``
+- ````
+  docker stop 30ff1a83345e25
+  ````
+- ````
+  docker rmi local-sharelatex:arm64
+  ````
 - Reconstruir:
 - ````
   cd ../overleaf
@@ -110,8 +143,12 @@ Si falla remover y levantar:
   ./bin/up
   ````
 
-Èntrar:
-- ``http://IP:80/``
+# Entrar:
+- ````
+  http://IP:80/
+  ````
 
 Si ves el login, anda aca y crea la cuenta:
-- ``http://IP/launchpad``
+- ````
+  http://IP/launchpad
+  ````
