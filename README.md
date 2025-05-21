@@ -7,7 +7,9 @@ Pasos completos!
 ## Requisitos:
 - Git: ``sudo apt install git -y``
 - Docker-Compose: ```sudo apt install docker.io docker-compose docker-buildx -y```
-- fork & Clone Overleaf: ``gh repo clone PIBSAS/overleaf``
+- Add user to docker group: ```sudo usermod -aG docker $USER```
+- Reboot: ```reboot```
+- fork & Clone Overleaf: ``gh repo clone PIBSAS/overleaf`` or ``git clone https://github.com/PIBSAS/overleaf.git``
 - entrar en la  clonacion: ``cd overleaf``
 
 Portar a ARM64 para Raspberry Pi
@@ -17,7 +19,7 @@ Portar a ARM64 para Raspberry Pi
 - Modificar el ``Dockerfile`` para que use el port creado.
 - ``nano Dockerfile``
 - Editamos ``FROM local-sharelatex-base:arm64`` Guardamos
-- ``cd ~/overleaf``
+- ``cd ~/overleaf``.
 - ``docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .``
 - ``cd && nano overleaf-toolkit/config/overleaf.rc``
 - Descomentar: ``# OVERLEAF_IMAGE_NAME=sharelatex/sharelatex``
