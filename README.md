@@ -2,17 +2,22 @@
 Pasos completos!
 
 
-# Ubuntu Server 25.04 Raspberry Pi
+# Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
 
 ## Requisitos:
 - Git:
   ````
   sudo apt install git -y
   ````
-- Docker-Compose:
+- Docker-Compose Ubuntu:
   ````
   sudo apt install docker.io docker-compose docker-buildx -y
   ````
+- Docker-Compose Pi OS:
+  ````
+  sudo apt install docker.io docker-compose -y
+  ````
+
 - Agregar usuario al grupo docker:
   ````
   sudo usermod -aG docker $USER
