@@ -10,7 +10,10 @@ Pasos completos!
 - Add user to docker group: ```sudo usermod -aG docker $USER```
 - Reboot: ```reboot```
 - fork & Clone Overleaf: ``gh repo clone PIBSAS/overleaf`` or ``git clone https://github.com/PIBSAS/overleaf.git``
-- entrar en la  clonacion: ``cd overleaf``
+- Clone Overleaf Toolkit:
+  ````
+  git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+  ````
 
 Portar a ARM64 para Raspberry Pi
 - ``cd overleaf/server-ce/``
@@ -19,13 +22,53 @@ Portar a ARM64 para Raspberry Pi
 - Modificar el ``Dockerfile`` para que use el port creado.
 - ``nano Dockerfile``
 - Editamos ``FROM local-sharelatex-base:arm64`` Guardamos
-- ``cd ~/overleaf``.
-- ``docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .``
-- ``cd && nano overleaf-toolkit/config/overleaf.rc``
-- Descomentar: ``# OVERLEAF_IMAGE_NAME=sharelatex/sharelatex``
-- y cambiar a : ``OVERLEAF_IMAGE_NAME=local-sharelatex:arm64``
+- ``
+  cd ~/overleaf
+  ``.
+- ``
+  docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
+  ``
+- Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
+  ``
+  cd & cd ./overleaf-toolkit
+  bin/init
+  ``
+- Una vez iniciado editamos `` overleaf.rc ``
+  
+  ``
+  cd && nano overleaf-toolkit/config/overleaf.rc
+  ``
+- Descomentar y modificar:
+  ``
+  # OVERLEAF_IMAGE_NAME=sharelatex/sharelatex
+  ``
+
+- y cambiar a :
+  ``
+  OVERLEAF_IMAGE_NAME=local-sharelatex:arm64
+  ``
+- Y:
+- ``OVERLEAF_LISTEN_IP=127.0.0.1`` a:
+  ``
+  OVERLEAF_LISTEN_IP=0.0.0.0
+  ``
+
 - Modificar:
-- ``nano lib/shared-functions.sh``
+  ``
+  nano overleaf-toolkit/lib/shared-functions.sh
+  ``
+  
+  Agregamos ``:$version`` en el if else lo siguiente:
+  - `` image_name="quay.io/sharelatex/sharelatex-pro" ``
+  - `` image_name="sharelatex/sharelatex" ``
+  - 
+  Y a ``export IMAGE="$image_name:$version" `` se lo quitamos:
+  ``
+  export IMAGE="$image_name"
+  ``
+
+  Quedando asi:
+  
 - ````
   function set_server_pro_image_name() {
     local version=$1
@@ -43,13 +86,11 @@ Portar a ARM64 para Raspberry Pi
     }
   ````
 
-- Cambiar:
-- ``nano config/overleaf.rc``
-- ``OVERLEAF_LISTEN_IP=127.0.0.1`` a ``OVERLEAF_LISTEN_IP=0.0.0.0``
 
-## Levantar Overleaf:
-- ````cd ..
-      ./bin/up
+## Levantar Overleaf Toolkit:
+- ````
+  cd ..
+  ./bin/up
   ````
 
 Si falla remover y levantar:
