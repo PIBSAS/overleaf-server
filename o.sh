@@ -25,14 +25,14 @@ git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
 echo "=== Construyendo imagen base ARM64 ==="
 cd overleaf/server-ce/
 export DOCKER_BUILDKIT=1
-docker build -t local-sharelatex-base:arm64 -f Dockerfile-base .
+docker build -t sharelatex-pi:arm64 -f Dockerfile-base .
 
 echo "=== Modificando Dockerfile principal ==="
 cd ~/overleaf/server-ce/
-sed -i 's|^FROM \$OVERLEAF_BASE_TAG|FROM local-sharelatex-base:arm64|' Dockerfile
+sed -i 's|^FROM \$OVERLEAF_BASE_TAG|FROM sharelatex-pi:arm64|' Dockerfile
 
 cd ~/overleaf
-docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
+docker build -t sharelatex:arm64 -f server-ce/Dockerfile .
 
 echo "=== Inicializando toolkit ==="
 cd ~/overleaf-toolkit
@@ -46,7 +46,7 @@ configure_overleaf() {
 
     # Configurar overleaf.rc
     sed -i \
-        -e 's/^# OVERLEAF_IMAGE_NAME=.*$/OVERLEAF_IMAGE_NAME=local-sharelatex:arm64/' \
+        -e 's/^# OVERLEAF_IMAGE_NAME=.*$/OVERLEAF_IMAGE_NAME=sharelatex:arm64/' \
         -e 's/^OVERLEAF_LISTEN_IP=127.0.0.1$/OVERLEAF_LISTEN_IP=0.0.0.0/' \
         "$rc_file"
 
