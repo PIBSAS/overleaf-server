@@ -38,15 +38,6 @@ echo "=== Inicializando toolkit ==="
 cd ~/overleaf-toolkit
 ./bin/init
 
-#echo "=== Configurando overleaf.rc ==="
-#sed -i 's|# OVERLEAF_IMAGE_NAME=sharelatex/sharelatex|OVERLEAF_IMAGE_NAME=local-sharelatex:arm64|' config/overleaf.rc
-#sed -i 's|OVERLEAF_LISTEN_IP=127.0.0.1|OVERLEAF_LISTEN_IP=0.0.0.0|' config/overleaf.rc
-
-#echo "=== Modificando shared-functions.sh ==="
-#sed -i 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' lib/shared-functions.sh
-#sed -i 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' lib/shared-functions.sh
-#sed -i 's|export IMAGE="\$image_name:\$version"|export IMAGE="$image_name"|' lib/shared-functions.sh
-
 # Función para configurar Overleaf
 configure_overleaf() {
     echo "=== Configurando Overleaf ==="
@@ -69,8 +60,39 @@ configure_overleaf() {
 
 configure_overleaf
 
-echo "=== Levantando Overleaf Toolkit ==="
-./bin/up
+echo "=== Agregando cron para iniciar Overleaf al bootear ==="
+(crontab -l 2>/dev/null; echo "@reboot cd $HOME/overleaf-toolkit && ./bin/up -d") | crontab -
+
+echo "=== Levantando Overleaf Toolkit (modo detach) ==="
+cd ~/overleaf-toolkit
+./bin/up -d
+
+post_install_overleaf_packages() {
+    echo "=== Instalando paquetes adicionales dentro del contenedor ==="
+
+    CONTAINER_NAME="sharelatex"
+
+    # Esperar a que el contenedor esté corriendo
+    echo "Esperando a que el contenedor '$CONTAINER_NAME' esté activo..."
+    while ! docker ps --format '{{.Names}}' | grep -q "^$CONTAINER_NAME\$"; do
+        sleep 2
+    done
+
+    docker exec "$CONTAINER_NAME" bash -c '
+        if [ ! -f /overleaf/.extras_installed ]; then
+            echo "Instalando paquetes adicionales..."
+            apt update && \
+            apt install -y hunspell-es && \
+            tlmgr install babel-spanish hyphen-spanish collection-langspanish && \
+            tlmgr update --all && \
+            touch /overleaf/.extras_installed
+        else
+            echo "Los paquetes ya están instalados, omitiendo..."
+        fi
+    '
+}
+
+post_install_overleaf_packages
 
 echo "=== Overleaf disponible en: http://<TU_IP>:80 ==="
 echo "=== Crear cuenta en: http://<TU_IP>/launchpad ==="
