@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Función para detectar el sistema
+# Función para detectar el sistema operativo
 detect_os() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -26,17 +26,43 @@ check_docker_group() {
     return 0
 }
 
-# Función para actualizar grupos sin reboot
-activate_docker_group() {
-    echo "Activando grupo docker en sesión actual..."
-    if command -v newgrp &>/dev/null; then
-        exec sudo -u $USER newgrp docker <<EOGRP
-        echo "Grupos actualizados. Continuando..."
-        exec $0 "$@"
-EOGRP
+# Función para verificar acceso a Docker
+check_docker_access() {
+    if docker ps >/dev/null 2>&1; then
+        return 0
     else
-        exec sudo -u $USER --login
+        echo "[!] Error de permisos con Docker"
+        return 1
     fi
+}
+
+# Función para configurar Docker definitivamente
+setup_docker_permissions() {
+    echo "=== Configurando permisos de Docker ==="
+    
+    # 1. Asegurar que el grupo docker existe
+    sudo groupadd docker 2>/dev/null || true
+    
+    # 2. Agregar usuario al grupo
+    sudo usermod -aG docker $USER
+    
+    # 3. Configurar el socket
+    sudo chown root:docker /var/run/docker.sock
+    sudo chmod 660 /var/run/docker.sock
+    
+    # 4. Crear override para systemd
+    sudo mkdir -p /etc/systemd/system/docker.socket.d
+    echo "[Socket]
+SocketMode=0660
+SocketUser=root
+SocketGroup=docker" | sudo tee /etc/systemd/system/docker.socket.d/override.conf >/dev/null
+    
+    # 5. Recargar servicios
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker.socket docker.service
+    
+    # 6. Esperar y verificar
+    sleep 3
 }
 
 # Función para inicializar el toolkit
@@ -71,68 +97,10 @@ configure_overleaf() {
         "$shared_functions"
 }
 
-# Función mejorada para activar grupos (versión que no se congela)
-activate_docker_instant() {
-    echo "Activando permisos de Docker instantáneamente..."
-    
-    # Verificar si ya tenemos acceso
-    if docker ps >/dev/null 2>&1; then
-        echo "[✓] Permisos ya están activos"
-        return 0
-    fi
-
-    # Solución 1: Usar el grupo actual (más confiable)
-    if sg docker -c "echo 'Probando acceso a Docker...'" >/dev/null 2>&1; then
-        echo "Usando nuevo grupo docker..."
-        sg docker -c "
-            export PATH=$PATH
-            $(declare -f detect_os check_docker_group init_overleaf_toolkit configure_overleaf)
-            $0 $@
-        "
-        exit $?
-    fi
-
-    # Solución 2: Método alternativo
-    echo "Usando método alternativo..."
-    newgrp docker <<EOGRP
-    export PATH=$PATH
-    $(declare -f detect_os check_docker_group init_overleaf_toolkit configure_overleaf)
-    $0 $@
-EOGRP
-    exit $?
-}
-
-# Función para verificar Docker (versión optimizada)
-verify_docker_access() {
-    local max_retries=3
-    local wait_time=2
-    
-    for ((i=1; i<=max_retries; i++)); do
-        if docker ps >/dev/null 2>&1; then
-            echo "[✓] Acceso a Docker verificado"
-            return 0
-        fi
-
-        echo "Intento $i/$max_retries: Configurando Docker..."
-        
-        # Configuración del socket
-        sudo chown root:docker /var/run/docker.sock 2>/dev/null
-        sudo chmod 660 /var/run/docker.sock 2>/dev/null
-        
-        # Reiniciar servicio
-        sudo systemctl restart docker.socket docker.service 2>/dev/null
-        sleep $wait_time
-    done
-
-    echo "[!] No se pudo establecer conexión con Docker"
-    activate_docker_instant
-}
-
-
 # =============== MAIN SCRIPT ===============
 
 # 1. Instalar Docker si no existe
-if ! check_docker_group; then
+if ! check_docker_group || ! check_docker_access; then
     echo "=== Instalando Docker ==="
     sudo apt update
     sudo apt install git -y
@@ -144,18 +112,17 @@ if ! check_docker_group; then
         *) echo "Sistema no soportado"; exit 1 ;;
     esac
 
-    # Configuración segura
-    sudo groupadd docker 2>/dev/null || true
-    sudo usermod -aG docker $USER
+    setup_docker_permissions
     
-    # Esperar a que Docker esté listo
-    sleep 3
-    
-    # Aplicar solución mejorada
-    verify_docker_access
+    # Verificación final
+    if ! check_docker_access; then
+        echo "=== Solución alternativa ==="
+        echo "Usando sudo temporalmente para Docker..."
+        alias docker='sudo docker'
+        alias docker-compose='sudo docker-compose'
+    fi
 fi
 
-# ... (el resto del script se mantiene igual)
 # 2. Clonar repositorios
 echo "=== Clonando repositorios ==="
 [ ! -d "overleaf" ] && git clone https://github.com/PIBSAS/overleaf.git
@@ -195,7 +162,7 @@ docker exec sharelatex bash -c "\
     tlmgr install babel-spanish hyphen-spanish collection-langspanish && \
     tlmgr update --all"
 
-# 7. Reiniciar
+# 7. Reiniciar servicios
 echo "=== Reiniciando servicios ==="
 ./bin/restart
 
