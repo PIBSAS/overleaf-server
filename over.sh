@@ -71,54 +71,61 @@ configure_overleaf() {
         "$shared_functions"
 }
 
-# Función mejorada para activar grupos
+# Función mejorada para activar grupos (versión que no se congela)
 activate_docker_instant() {
     echo "Activando permisos de Docker instantáneamente..."
     
-    # Pasar todas las funciones necesarias
-    local funcs=$(declare -f detect_os check_docker_group init_overleaf_toolkit configure_overleaf 
-                  activate_docker_instant verify_docker_access)
-    
-    # Solución 1: Usar sg (funciona en la mayoría de sistemas)
-    if command -v sg >/dev/null; then
-        exec sg docker -c "
-            echo 'Permisos de Docker activados. Continuando...'
-            $funcs
-            $0 $@
-        "
-    # Solución 2: Alternativa para sistemas sin sg
-    else
-        exec sudo -u $USER -- bash -c "
-            export PATH=$PATH
-            $funcs
-            $0 $@
-        "
+    # Verificar si ya tenemos acceso
+    if docker ps >/dev/null 2>&1; then
+        echo "[✓] Permisos ya están activos"
+        return 0
     fi
+
+    # Solución 1: Usar el grupo actual (más confiable)
+    if sg docker -c "echo 'Probando acceso a Docker...'" >/dev/null 2>&1; then
+        echo "Usando nuevo grupo docker..."
+        sg docker -c "
+            export PATH=$PATH
+            $(declare -f detect_os check_docker_group init_overleaf_toolkit configure_overleaf)
+            $0 $@
+        "
+        exit $?
+    fi
+
+    # Solución 2: Método alternativo
+    echo "Usando método alternativo..."
+    newgrp docker <<EOGRP
+    export PATH=$PATH
+    $(declare -f detect_os check_docker_group init_overleaf_toolkit configure_overleaf)
+    $0 $@
+EOGRP
+    exit $?
 }
 
-# Función para verificar Docker
+# Función para verificar Docker (versión optimizada)
 verify_docker_access() {
-    if ! docker ps >/dev/null 2>&1; then
-        echo "Aplicando solución definitiva para permisos Docker..."
+    local max_retries=3
+    local wait_time=2
+    
+    for ((i=1; i<=max_retries; i++)); do
+        if docker ps >/dev/null 2>&1; then
+            echo "[✓] Acceso a Docker verificado"
+            return 0
+        fi
+
+        echo "Intento $i/$max_retries: Configurando Docker..."
         
-        # 1. Asegurar que el socket tenga permisos correctos
-        sudo chown root:docker /var/run/docker.sock
-        sudo chmod 660 /var/run/docker.sock
+        # Configuración del socket
+        sudo chown root:docker /var/run/docker.sock 2>/dev/null
+        sudo chmod 660 /var/run/docker.sock 2>/dev/null
         
-        # 2. Crear override para systemd
-        sudo mkdir -p /etc/systemd/system/docker.socket.d
-        echo "[Socket]
-SocketMode=0660
-SocketUser=root
-SocketGroup=docker" | sudo tee /etc/systemd/system/docker.socket.d/override.conf >/dev/null
-        
-        # 3. Recargar servicios
-        sudo systemctl daemon-reload
-        sudo systemctl restart docker.socket docker.service
-        
-        # 4. Forzar actualización de grupos
-        activate_docker_instant
-    fi
+        # Reiniciar servicio
+        sudo systemctl restart docker.socket docker.service 2>/dev/null
+        sleep $wait_time
+    done
+
+    echo "[!] No se pudo establecer conexión con Docker"
+    activate_docker_instant
 }
 
 
@@ -141,7 +148,10 @@ if ! check_docker_group; then
     sudo groupadd docker 2>/dev/null || true
     sudo usermod -aG docker $USER
     
-    # Aplicar solución definitiva
+    # Esperar a que Docker esté listo
+    sleep 3
+    
+    # Aplicar solución mejorada
     verify_docker_access
 fi
 
