@@ -72,7 +72,7 @@ fi
 # 2. Clonar repositorios
 echo "=== Clonando repositorios ==="
 [ ! -d "overleaf" ] && git clone https://github.com/PIBSAS/overleaf.git
-[ ! -d "overleaf-toolkit" ] && git clone https://github.com/overleaf/toolkit.git overleaf-toolkit
+[ ! -d "overleaf-toolkit" ] && git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
 
 # 3. Configuración inicial
 init_overleaf_toolkit
@@ -91,12 +91,6 @@ docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
 echo "=== Iniciando servicios ==="
 cd "$HOME/overleaf-toolkit"
 if ! ./bin/up; then
-    echo "[!] Reintentando..."
-    docker rm -f overleaf sharelatex redis mongo
-    docker rmi local-sharelatex:arm64
-    cd "$HOME/overleaf"
-    docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
-    cd "$HOME/overleaf-toolkit"
     ./bin/up
 fi
 
