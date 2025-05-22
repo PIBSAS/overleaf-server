@@ -176,3 +176,8 @@ Si ves el login, anda aca y crea la cuenta:
 - ````
   docker restart sharelatex
   ````
+
+# Script instalación:
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
+  ````
