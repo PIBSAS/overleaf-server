@@ -1,6 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
+# Función para detectar el sistema
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [[ "$ID" == "ubuntu" ]]; then
+            echo "ubuntu"
+        elif [[ "$ID" == "raspbian" || "$ID" == "debian" ]] && [ -f /etc/rpi-issue ]; then
+            echo "raspberry"
+        else
+            echo "unknown"
+        fi
+    else
+        echo "unknown"
+    fi
+}
+
 # Función para verificar grupo docker
 check_docker_group() {
     if ! groups | grep -qw docker; then
@@ -10,6 +26,22 @@ check_docker_group() {
     return 0
 }
 
+#Función para actualizar grupos sin reboot
+activate_docker_group() {
+    echo "Activando grupo docker en sesión actual..."
+
+    # Para shells que soportan newgrp
+    if command -v newgrp &>/dev/null; then
+        exec sudo -u $USER newgrp docker <<EOGRP
+        echoo "Grupos actualizados. Continuando..."
+        exec $0 "$@"
+EOGRP
+    else
+        # Metodo para shell sin newgrp
+        exec sudo -u $USER --login
+    fi
+}
+
 # Configuración inicial de Docker
 if ! check_docker_group; then
     echo "=== Instalando dependencias ==="
@@ -17,13 +49,14 @@ if ! check_docker_group; then
     sudo apt install git -y
 
     # Detectar sistema operativo
-    read -p "¿Usas Ubuntu (u) o Raspberry Pi OS (r)? " os_choice
-    case "$os_choice" in
-        u|U)
+    OS_TYPE=$(detect_os)
+    
+    case "$OS_TYPE" in
+        ubuntu)
             echo "Instalando Docker para Ubuntu..."
             sudo apt install docker.io docker-compose docker-buildx -y
             ;;
-        r|R)
+        raspberry)
             echo "Instalando Docker para Raspberry Pi..."
             sudo apt install docker.io docker-compose -y
             ;;
@@ -35,9 +68,7 @@ if ! check_docker_group; then
 
     # Agregar usuario a grupo docker
     sudo usermod -aG docker "$USER"
-    echo -e "\n[!] Reinicia el sistema con: sudo reboot"
-    echo "Ejecuta este script nuevamente después de reiniciar"
-    exit 0
+    activate_docker_group
 fi
 
 # ==============================
