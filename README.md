@@ -178,6 +178,13 @@ Si ves el login, anda aca y crea la cuenta:
   ````
 
 # Script instalación:
+  Primeeo debemos crear el grupo docker y agregar nuestro usuario al grupo
+- ````
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  ````
+
+  Reiniciar y ejecutar la siguiente linea:
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
   ````
