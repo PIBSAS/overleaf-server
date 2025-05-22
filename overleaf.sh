@@ -42,6 +42,54 @@ EOGRP
     fi
 }
 
+# Función para manejar la inicialización del toolkit
+init_overleaf_toolkit() {
+    echo "=== Configurando Overleaf Toolkit ==="
+    
+    if [ -d "$HOME/overleaf-toolkit/config" ] && [ -f "$HOME/overleaf-toolkit/config/overleaf.rc" ]; then
+        echo "[!] Archivos de configuración ya existen. Usando configuración existente."
+        
+        # Hacer backup de la configuración existente
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+        cp "$HOME/overleaf-toolkit/config/overleaf.rc" "$HOME/overleaf-toolkit/config/overleaf.rc.backup_$TIMESTAMP"
+        echo "  → Se creó backup en: $HOME/overleaf-toolkit/config/overleaf.rc.backup_$TIMESTAMP"
+    else
+        # Inicializar si no existe la configuración
+        "$HOME/overleaf-toolkit/bin/init"
+    fi
+}
+
+# Función para modificar la configuración
+configure_overleaf() {
+    local rc_file="$HOME/overleaf-toolkit/config/overleaf.rc"
+    local shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
+    
+    echo "=== Aplicando configuraciones personalizadas ==="
+    
+    # Modificar overleaf.rc
+    if grep -q "OVERLEAF_IMAGE_NAME=local-sharelatex:arm64" "$rc_file"; then
+        echo "  → Configuración de imagen ya existe, omitiendo..."
+    else
+        sed -i \
+            -e 's/^# OVERLEAF_IMAGE_NAME=.*$/OVERLEAF_IMAGE_NAME=local-sharelatex:arm64/' \
+            -e 's/^OVERLEAF_LISTEN_IP=127.0.0.1$/OVERLEAF_LISTEN_IP=0.0.0.0/' \
+            "$rc_file"
+        echo "  → Configuración de imagen y IP actualizada"
+    fi
+    
+    # Modificar shared-functions.sh
+    if grep -q 'export IMAGE="$image_name"' "$shared_functions"; then
+        echo "  → Configuración de funciones ya existe, omitiendo..."
+    else
+        sed -i \
+            -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
+            -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
+            -e 's/export IMAGE="$image_name:$version"/export IMAGE="$image_name"/' \
+            "$shared_functions"
+        echo "  → Configuración de funciones actualizada"
+    fi
+}
+
 # Configuración inicial de Docker
 if ! check_docker_group; then
     echo "=== Instalando dependencias ==="
@@ -83,6 +131,9 @@ fi
 if [ ! -d "overleaf-toolkit" ]; then
     git clone https://github.com/overleaf/toolkit.git overleaf-toolkit
 fi
+
+init_overleaf_toolkit
+configure_overleaf
 
 echo "=== Construyendo imágenes Docker ARM64 ==="
 cd overleaf/server-ce/ || exit
