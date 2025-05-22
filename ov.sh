@@ -55,18 +55,18 @@ configure_overleaf() {
 # =============== MAIN SCRIPT ===============
 
 # 1. Instalar Docker si no existe
-if ! check_docker_group; then
-    echo "=== Instalando Docker ==="
-    sudo apt update
-    sudo apt install git -y
+# Instalación directa sin verificaciones
+echo "=== Instalando Docker ==="
+sudo apt update
+sudo apt install git -y
 
-    OS_TYPE=$(detect_os)
-    case "$OS_TYPE" in
-        ubuntu) sudo apt install docker.io docker-compose docker-buildx -y ;;
-        raspberry) sudo apt install docker.io docker-compose -y ;;
-        *) echo "Sistema no soportado"; exit 1 ;;
-    esac
-
+if grep -q "ubuntu" /etc/os-release; then
+    sudo apt install docker.io docker-compose docker-buildx -y
+elif grep -q "raspbian" /etc/os-release || (grep -q "debian" /etc/os-release && [ -f /etc/rpi-issue ]); then
+    sudo apt install docker.io docker-compose -y
+else
+    echo "Sistema no soportado"
+    exit 1
 fi
 
 # 2. Clonar repositorios
