@@ -29,7 +29,7 @@ docker build -t sharelatex-pi:arm64 -f Dockerfile-base .
 
 echo "=== Modificando Dockerfile principal ==="
 cd ~/overleaf/server-ce/
-sed -i 's|^FROM \$OVERLEAF_BASE_TAG|FROM sharelatex-pi:arm64|' Dockerfile
+sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-pi:arm64|' Dockerfile
 
 cd ~/overleaf
 docker build -t sharelatex:arm64 -f server-ce/Dockerfile .
@@ -94,5 +94,5 @@ post_install_overleaf_packages() {
 
 post_install_overleaf_packages
 
-echo "=== Overleaf disponible en: http://<TU_IP>:80 ==="
-echo "=== Crear cuenta en: http://<TU_IP>/launchpad ==="
+echo "=== Overleaf disponible en: http://$(hostname -I | awk '{print $1}'):80 ==="
+echo "=== Crear cuenta en: http://$(hostname -I | awk '{print $1}'):80/launchpad ==="
