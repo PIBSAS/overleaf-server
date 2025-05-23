@@ -4,10 +4,31 @@ Pasos completos!
 
 # Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
 
+
+# Script instalación:
+  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo
+- ````
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  ````
+  En Ubuntu Desktop debemos instalar curl:
+  ````
+  sudo apt install curl -y
+  ````
+
+  Reiniciar y ejecutar la siguiente linea:
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
+  ````
+
+
+# Ubuntu Server/Desktop 25.04 y Pi OS Lite o Desktop en Raspberry Pi
+  En Ubuntu Desktop necesitamos instalar curl.
+  
 ## Requisitos:
 - Git:
   ````
-  sudo apt install git -y
+  sudo apt install git curl -y
   ````
 - Docker-Compose Ubuntu:
   ````
@@ -177,14 +198,3 @@ Si ves el login, anda aca y crea la cuenta:
   docker restart sharelatex
   ````
 
-# Script instalación:
-  Primeeo debemos crear el grupo docker y agregar nuestro usuario al grupo
-- ````
-  sudo groupadd docker
-  sudo usermod -aG docker $USER
-  ````
-
-  Reiniciar y ejecutar la siguiente linea:
-- ````
-  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
-  ````
