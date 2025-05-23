@@ -16,4 +16,4 @@ docker rmi $(docker images -q) 2>/dev/null
 echo "📁 Eliminando directorio overleaf-toolkit..."
 sudo rm -rf ~/overleaf-toolkit
 
-echo "✅ Entorno limpiado completamente. Podés ejecutar ./inso.sh"
+echo "✅ Entorno limpiado completamente."
