@@ -11,7 +11,7 @@ curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.s
 ````
 
 
-### Limpieza total por si no te interesa:
+### Limpieza por si te falla algo y queres reintentar:
 ````
 curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
 ````
@@ -227,5 +227,11 @@ Si ves el login, anda aca y crea la cuenta:
   O:
 - ````
   docker restart sharelatex
+  ````
+
+  # Limpieza total, desinstalamos todo!:
+  - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
   ````
 
