@@ -6,34 +6,34 @@ Pasos completos!
 
 
 ## Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
-````
-curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
-````
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
+  ````
 
 
 ### Limpieza por si te falla algo y queres reintentar:
-````
-curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
-````
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
+  ````
 
 #### Pasos que realiza:
-````
-docker stop $(docker ps -aq) 2>/dev/null
-docker rm $(docker ps -aq) 2>/dev/null
-docker network prune -f
-````
-Luego:
-````
-docker rmi $(docker images -q) 2>/dev/null
-````
-Y:
-````
-sudo rm -rf ~/overleaf-toolkit
-````
-Finalmente:
-````
-docker volume prune -f
-````
+- ````
+  docker stop $(docker ps -aq) 2>/dev/null
+  docker rm $(docker ps -aq) 2>/dev/null
+  docker network prune -f
+  ````
+  Luego:
+- ````
+  docker rmi $(docker images -q) 2>/dev/null
+  ````
+  Y:
+- ````
+  sudo rm -rf ~/overleaf-toolkit
+  ````
+  Finalmente:
+- ````
+  docker volume prune -f
+  ````
 
 
 ## Script instalación construyendo imagen docker para ARM64:
@@ -229,9 +229,8 @@ Si ves el login, anda aca y crea la cuenta:
   docker restart sharelatex
   ````
 
-  # Limpieza total, desinstalamos todo!:
+# Limpieza total, desinstalamos todo!:
   - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
   ````
-
