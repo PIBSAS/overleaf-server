@@ -24,7 +24,7 @@ CRON_LINE="@reboot cd \$HOME/overleaf-toolkit && ./bin/up -d"
 echo "✅ Cron eliminado."
 
 echo "🐳 Desinstalando Docker..."
-sudo apt-get remove --purge -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io || true
+sudo apt-get remove --purge -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin || true
 sudo apt-get autoremove -y
 sudo rm -rf /var/lib/docker
 sudo rm -rf /var/lib/containerd
