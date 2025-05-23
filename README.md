@@ -6,6 +6,17 @@ Pasos completos!
 
 
 ## Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
+  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo.
+- ````
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  ````
+  En Ubuntu Desktop debemos instalar curl:
+  ````
+  sudo apt install curl -y
+  ````
+
+  Reiniciar y ejecutar la siguiente linea:
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
   ````
