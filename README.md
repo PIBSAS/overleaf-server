@@ -5,17 +5,18 @@ Pasos completos!
 # Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
 
 
-# Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
+## Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
 ````
 curl curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
 ````
 
-# Limpieza total por si no te interesa:
+
+### Limpieza total por si no te interesa:
 ````
 curl curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
 ````
 
-Pasos que realiza.
+#### Pasos que realiza:
 ````
 docker stop $(docker ps -aq) 2>/dev/null
 docker rm $(docker ps -aq) 2>/dev/null
@@ -35,9 +36,8 @@ docker volume prune -f
 ````
 
 
-
-# Script instalación construyendo imagen docker para ARM64:
-  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo
+## Script instalación construyendo imagen docker para ARM64:
+  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo.
 - ````
   sudo groupadd docker
   sudo usermod -aG docker $USER
