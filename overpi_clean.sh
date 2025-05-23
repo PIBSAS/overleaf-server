@@ -16,4 +16,14 @@ docker rmi $(docker images -q) 2>/dev/null
 echo "📁 Eliminando directorio overleaf-toolkit..."
 sudo rm -rf ~/overleaf-toolkit
 
+eliminar_cron_inicio() {
+    echo "🧹 Eliminando entrada de cron para Overleaf..."
+    local CRON_LINE="@reboot cd \$HOME/overleaf-toolkit && ./bin/up -d"
+
+    # Filtra la línea correspondiente y reescribe el crontab sin ella
+    crontab -l 2>/dev/null | grep -vF "$CRON_LINE" | crontab -
+    echo "✅ Cron eliminado."
+}
+
+eliminar_cron_inicio
 echo "✅ Entorno limpiado completamente."
