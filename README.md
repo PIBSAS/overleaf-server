@@ -7,13 +7,13 @@ Pasos completos!
 
 ## Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
 ````
-curl curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
+curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
 ````
 
 
 ### Limpieza total por si no te interesa:
 ````
-curl curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
+curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
 ````
 
 #### Pasos que realiza:
