@@ -62,6 +62,15 @@ iniciar_overleaf() {
     ./bin/up -d
 }
 
+agregar_cron_inicio() {
+    echo "🕒 Agregando cron para iniciar Overleaf al bootear..."
+    local CRON_LINE="@reboot cd \$HOME/overleaf-toolkit && ./bin/up -d"
+
+    # Evita duplicados
+    (crontab -l 2>/dev/null | grep -vF "$CRON_LINE"; echo "$CRON_LINE") | crontab -
+    echo "✅ Cron agregado con éxito."
+}
+
 # === EJECUCIÓN SECUENCIAL ===
 instalar_docker
 # 🔁 Limpiar si ya existe
@@ -74,8 +83,10 @@ if [ -d "$TOOLKIT_DIR" ]; then
     echo "🧹 Eliminando toolkit existente..."
     sudo rm -rf "$TOOLKIT_DIR"
 fi
+
+
 clonar_toolkit
 modificar_config_seed
 inicializar_toolkit
-#descargar_imagen
 iniciar_overleaf
+agregar_cron_inicio
