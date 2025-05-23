@@ -37,6 +37,10 @@ if [ -z "$(getent group docker | cut -d: -f4)" ]; then
     echo "🗑️ Eliminando grupo 'docker' (vacío)..."
     sudo groupdel docker
 else
+
+echo "🗑️ Eliminando configuración local de Docker (~/.docker)..."
+rm -rf ~/.docker
+
     echo "ℹ️ El grupo 'docker' aún tiene miembros, no se elimina."
 fi
 
