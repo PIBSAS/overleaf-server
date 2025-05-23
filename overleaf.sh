@@ -1,55 +1,42 @@
 #!/bin/bash
-set -euo pipefail
 
-# Función para detectar el sistema
-detect_os() {
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        if [[ "$ID" == "ubuntu" ]]; then
-            echo "ubuntu"
-        elif [[ "$ID" == "raspbian" || "$ID" == "debian" ]] && [ -f /etc/rpi-issue ]; then
-            echo "raspberry"
-        else
-            echo "unknown"
-        fi
-    else
-        echo "unknown"
-    fi
-}
+set -e
 
-# Función para verificar grupo docker
-check_docker_group() {
-    if ! groups | grep -qw docker; then
-        echo "[!] Usuario no está en el grupo docker"
-        return 1
-    fi
-    return 0
-}
+echo "=== Detectando sistema operativo ==="
+OS_NAME=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
-# Función para actualizar grupos sin reboot
-activate_docker_group() {
-    echo "Activando grupo docker en sesión actual..."
-    if command -v newgrp &>/dev/null; then
-        exec sudo -u $USER newgrp docker <<EOGRP
-        echo "Grupos actualizados. Continuando..."
-        exec $0 "$@"
-EOGRP
-    else
-        exec sudo -u $USER --login
-    fi
-}
+if [[ "$OS_NAME" == "ubuntu" ]]; then
+    echo "=== Sistema detectado: Ubuntu ==="
+    sudo apt update
+    sudo apt install -y git docker.io docker-compose docker-buildx
+elif [[ "$OS_NAME" == "raspbian" ]] || [[ "$OS_NAME" == "debian" ]]; then
+    echo "=== Sistema detectado: Raspberry Pi OS (basado en Debian) ==="
+    sudo apt update
+    sudo apt install -y git docker.io docker-compose
+else
+    echo "Sistema operativo no compatible automáticamente. Instalación detenida."
+    exit 1
+fi
 
-# Función para inicializar el toolkit
-init_overleaf_toolkit() {
-    echo "=== Inicializando Overleaf Toolkit ==="
-    if [ -d "$HOME/overleaf-toolkit/config" ] && [ -f "$HOME/overleaf-toolkit/config/overleaf.rc" ]; then
-        echo "[✓] Configuración ya existe"
-        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-        cp "$HOME/overleaf-toolkit/config/overleaf.rc" "$HOME/overleaf-toolkit/config/overleaf.rc.backup_$TIMESTAMP"
-        return 0
-    fi
-    "$HOME/overleaf-toolkit/bin/init" || return 1
-}
+echo "=== Clonando repositorios ==="
+git clone https://github.com/PIBSAS/overleaf.git
+git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+
+echo "=== Construyendo imagen base ARM64 ==="
+cd overleaf/server-ce/
+export DOCKER_BUILDKIT=1
+docker build -t sharelatex-pi:arm64 -f Dockerfile-base .
+
+echo "=== Modificando Dockerfile principal ==="
+cd ~/overleaf/server-ce/
+sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-pi:arm64|' Dockerfile
+
+cd ~/overleaf
+docker build -t sharelatex-pi:arm64 -f server-ce/Dockerfile .
+
+echo "=== Inicializando toolkit ==="
+cd ~/overleaf-toolkit
+./bin/init
 
 # Función para configurar Overleaf
 configure_overleaf() {
@@ -59,7 +46,7 @@ configure_overleaf() {
 
     # Configurar overleaf.rc
     sed -i \
-        -e 's/^# OVERLEAF_IMAGE_NAME=.*$/OVERLEAF_IMAGE_NAME=local-sharelatex:arm64/' \
+        -e 's/^# OVERLEAF_IMAGE_NAME=.*$/OVERLEAF_IMAGE_NAME=sharelatex-pi:arm64/' \
         -e 's/^OVERLEAF_LISTEN_IP=127.0.0.1$/OVERLEAF_LISTEN_IP=0.0.0.0/' \
         "$rc_file"
 
@@ -71,70 +58,41 @@ configure_overleaf() {
         "$shared_functions"
 }
 
-# =============== MAIN SCRIPT ===============
-
-# 1. Instalar Docker si no existe
-if ! check_docker_group; then
-    echo "=== Instalando Docker ==="
-    sudo apt update
-    sudo apt install git -y
-
-    OS_TYPE=$(detect_os)
-    case "$OS_TYPE" in
-        ubuntu) sudo apt install docker.io docker-compose docker-buildx -y ;;
-        raspberry) sudo apt install docker.io docker-compose -y ;;
-        *) echo "Sistema no soportado"; exit 1 ;;
-    esac
-
-    sudo usermod -aG docker "$USER"
-    activate_docker_group
-fi
-
-# 2. Clonar repositorios
-echo "=== Clonando repositorios ==="
-[ ! -d "overleaf" ] && git clone https://github.com/PIBSAS/overleaf.git
-[ ! -d "overleaf-toolkit" ] && git clone https://github.com/overleaf/toolkit.git overleaf-toolkit
-
-# 3. Configuración inicial
-init_overleaf_toolkit
 configure_overleaf
 
-# 4. Construir imágenes Docker
-echo "=== Construyendo imágenes ==="
-cd overleaf/server-ce/
-export DOCKER_BUILDKIT=1
-docker build -t local-sharelatex-base:arm64 -f Dockerfile-base .
-sed -i 's/^FROM \$OVERLEAF_BASE_TAG$/FROM local-sharelatex-base:arm64/' Dockerfile
-cd "$HOME/overleaf"
-docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
+echo "=== Agregando cron para iniciar Overleaf al bootear ==="
+(crontab -l 2>/dev/null; echo "@reboot cd $HOME/overleaf-toolkit && ./bin/up -d") | crontab -
 
-# 5. Iniciar servicios
-echo "=== Iniciando servicios ==="
-cd "$HOME/overleaf-toolkit"
-if ! ./bin/up; then
-    echo "[!] Reintentando..."
-    docker rm -f overleaf sharelatex redis mongo
-    docker rmi local-sharelatex:arm64
-    cd "$HOME/overleaf"
-    docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
-    cd "$HOME/overleaf-toolkit"
-    ./bin/up
-fi
+echo "=== Levantando Overleaf Toolkit (modo detach) ==="
+cd ~/overleaf-toolkit
+./bin/up -d
 
-# 6. Instalar extras
-echo "=== Instalando paquetes adicionales ==="
-docker exec sharelatex bash -c "\
-    apt update && \
-    apt install -y hunspell-es && \
-    tlmgr install babel-spanish hyphen-spanish collection-langspanish && \
-    tlmgr update --all"
+post_install_overleaf_packages() {
+    echo "=== Instalando paquetes adicionales dentro del contenedor ==="
 
-# 7. Reiniciar
-echo "=== Reiniciando servicios ==="
-./bin/restart
+    CONTAINER_NAME="sharelatex-pi"
 
-# 8. Mostrar información
-IP=$(hostname -I | awk '{print $1}')
-echo -e "\n[✓] Instalación completada!"
-echo -e "URL de acceso: http://${IP}:80"
-echo -e "Crear cuenta admin: http://${IP}/launchpad"
+    # Esperar a que el contenedor esté corriendo
+    echo "Esperando a que el contenedor '$CONTAINER_NAME' esté activo..."
+    while ! docker ps --format '{{.Names}}' | grep -q "^$CONTAINER_NAME\$"; do
+        sleep 2
+    done
+
+    docker exec "$CONTAINER_NAME" bash -c '
+        if [ ! -f /overleaf/.extras_installed ]; then
+            echo "Instalando paquetes adicionales..."
+            apt update && \
+            apt install -y hunspell-es && \
+            tlmgr install babel-spanish hyphen-spanish collection-langspanish && \
+            tlmgr update --all && \
+            touch /overleaf/.extras_installed
+        else
+            echo "Los paquetes ya están instalados, omitiendo..."
+        fi
+    '
+}
+
+post_install_overleaf_packages
+
+echo "=== Overleaf disponible en: http://$(hostname -I | awk '{print $1}'):80 ==="
+echo "=== Crear cuenta en: http://$(hostname -I | awk '{print $1}'):80/launchpad ==="
