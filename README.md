@@ -140,6 +140,11 @@ Pasos completos!
 - ````
   DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
   ````
+  Y si pensamos subirla a Docker Hub indicamos nuestro nombre de usuario(mi usuario en Dockeer Hub es pibsas):
+- ````
+  DOCKER_BUILDKIT=1 docker build -t pibsas/sharelatex-base:arm64 -f Dockerfile-base .
+  ````
+  
 - Modificar el ``Dockerfile`` para que use el port creado.
   ````
   nano Dockerfile
@@ -148,9 +153,13 @@ Pasos completos!
 - ````
   cd ~/overleaf
   ````
-- Construimos:
+- Construimos localmente:
 - ````
-  docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
+  docker build -t sharelatex:arm64 -f server-ce/Dockerfile .
+  ````
+  Si subimos luego a Docker Hub:
+- ````
+  docker build -t pibsas/sharelatex:arm64 -f server-ce/Dockerfile .
   ````
 # Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
   ````
