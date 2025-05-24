@@ -150,27 +150,32 @@ Pasos completos!
 - ````
   cd "$HOME/overleaf/server-ce"
   sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
-  sed -i '/^EXPOSE/a \
-  # Paquetes adicionales para soporte en español\n\
-  RUN apt-get update && \\\n\
-      apt-get install -y hunspell-es && \\\n\
-      tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\\n\
-      tlmgr update --all && \\\n\
-      apt-get clean && \\\n\
-      rm -rf /var/lib/apt/lists/*' Dockerfile
+  awk '/^EXPOSE/ {
+      print;
+      print "# Paquetes adicionales para soporte en español";
+      print "RUN apt-get update && apt-get install -y hunspell-es && \\";
+      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\";
+      print "    tlmgr update --all && \\";
+      print "    apt-get clean && \\";
+      print "    rm -rf /var/lib/apt/lists/*";
+      next
+  }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
   ````
   Para Docker Hub:
 - ````
   cd "$HOME/overleaf/server-ce"
   sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=pibsas/sharelatex-base:arm64|' Dockerfile
-  sed -i '/^EXPOSE/a \
-  # Paquetes adicionales para soporte en español\n\
-  RUN apt-get update && \\\n\
-      apt-get install -y hunspell-es && \\\n\
-      tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\\n\
-      tlmgr update --all && \\\n\
-      apt-get clean && \\\n\
-      rm -rf /var/lib/apt/lists/*' Dockerfile
+  awk '/^EXPOSE/ {
+      print;
+      print "# Paquetes adicionales para soporte en español";
+      print "RUN apt-get update && apt-get install -y hunspell-es && \\";
+      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\";
+      print "    tlmgr update --all && \\";
+      print "    apt-get clean && \\";
+      print "    rm -rf /var/lib/apt/lists/*";
+      next
+  }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
+
   ````
 - Construimos localmente:
 - ````
@@ -184,7 +189,7 @@ Pasos completos!
   ````
 # Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
   ````
-  cd & cd ./overleaf-toolkit
+  cd && cd ./overleaf-toolkit
   ./bin/init
   ````
 - Una vez iniciado editamos `` overleaf.rc ``:
