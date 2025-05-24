@@ -9,11 +9,13 @@ TOOLKIT_REPO="https://github.com/overleaf/toolkit.git"
 TOOLKIT_DIR="overleaf-toolkit"
 DOCKER_IMAGE="sharelatex:arm64"
 
+instalar_dependencias() {
+    sudo apt install git curl uidmap gawk -y
+}
 # Función para instalar Docker si no está
 instalar_docker() {
     if ! command -v docker &> /dev/null; then
         echo "🚀 Instalando Docker rootless..."
-        sudo apt install git curl uidmap docker-compose-plugin awk -y
         curl -fsSL https://get.docker.com/rootless | sh
         echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
         echo 'export DOCKER_HOST=unix:///run/user/1000/docker.sock' >> ~/.bashrc
@@ -45,7 +47,10 @@ install_docker_buildx() {
     echo "✅ Docker Buildx v${latest} instalado correctamente."
 }
 
-
+instalar_docker_compose_v2(){
+    sudo apt update
+    sudo apt install docker-compose-plugin -y
+}
 # Clonar el toolkit si no existe
 clonar_overleaf() {
     if [ ! -d "$OVERLEAF_DIR" ]; then
@@ -166,6 +171,7 @@ agregar_cron_inicio() {
 }
 
 # === EJECUCIÓN SECUENCIAL ===
+instalar_dependencias
 instalar_docker
 # 🔁 Limpiar si ya existe
 if docker ps -a --format '{{.Names}}' | grep -q '^mongo\|^sharelatex\|^redis'; then
@@ -178,6 +184,7 @@ if [ -d "$TOOLKIT_DIR" ]; then
     sudo rm -rf "$TOOLKIT_DIR"
 fi
 install_docker_buildx
+instalar_docker_compose_v2
 clonar_overleaf
 build_sharelatex_base
 patch_overleaf_dockerfile
