@@ -73,19 +73,31 @@ Pasos completos!
   sudo apt install git curl -y
   ````
 - Docker-Compose Ubuntu:
+  Docker con root:
 - ````
-  # Función para instalar Docker si no está
-  instalar_docker() {
-      if ! command -v docker &> /dev/null; then
-          echo "🚀 Instalando Docker..."
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          rm get-docker.sh
-      else
-          echo "✅ Docker ya está instalado."
-      fi
-  }
+  curl -fsSL https://get.docker.com -o get-docker.sh
+  sudo sh get-docker.sh
+  rm get-docker.sh
   ````
+  Docker rootless:
+  ````
+  sudo apt install uidmap -y
+  curl -fsSL https://get.docker.com/rootless | sh
+  echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+  echo 'export DOCKER_HOST=unix:///run/user/1000/docker.sock' >> ~/.bashrc
+  source ~/.bashrc
+  ````
+  Si se desea desinstalar:
+  ````
+  dockerd-rootless-setuptool.sh uninstall
+  rootlesskit rm -rf ~/.local/share/docker.
+  sed -i '/export PATH=\$HOME\/bin:\$PATH/d' ~/.bashrc
+  sed -i '/export DOCKER_HOST=unix:\/\/\/run\/user\/1000\/docker.sock/d' ~/.bashrc
+  source ~/.bashrc
+  cd ~/bin
+  rm -f containerd containerd-shim containerd-shim-runc-v2 ctr docker docker-init docker-proxy dockerd dockerd-rootless-setuptool.sh dockerd-rootless.sh rootlesskit rootlesskit-docker-proxy runc vpnkit
+  ````
+  
   sudo apt install docker.io docker-compose docker-buildx -y
   ````
 - Docker-Compose Pi OS:
@@ -101,13 +113,13 @@ Pasos completos!
   ````
   reboot
   ````
-- Fork & Clone Overleaf:
+- Clone Overleaf:
   ````
-  gh repo clone PIBSAS/overleaf
+  gh repo clone overleaf/overleaf
   ````
   or
   ````
-  git clone https://github.com/PIBSAS/overleaf.git
+  git clone https://github.com/overleaf/overleaf.git
   ````
 - Clonar Overleaf Toolkit:
   ````
@@ -115,14 +127,18 @@ Pasos completos!
   ````
 
 # Portar a ARM64 para Raspberry Pi:
+  
+- ````
+  latest=$(curl -sSL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"v\K[0-9.]+' | head -n1) && \
+  mkdir -p ~/.docker/cli-plugins && \
+  curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v${latest}.linux-arm64" -o ~/.docker/cli-plugins/docker-buildx && \
+  chmod +x ~/.docker/cli-plugins/docker-buildx
+  ````
 - ````
   cd overleaf/server-ce/
   ````
 - ````
-  export DOCKER_BUILDKIT=1
-  ````
-- ````
-  docker build -t local-sharelatex-base:arm64 -f Dockerfile-base .
+  DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
   ````
 - Modificar el ``Dockerfile`` para que use el port creado.
   ````
