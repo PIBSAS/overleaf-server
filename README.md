@@ -194,7 +194,7 @@ Pasos completos!
   ````
 - Una vez iniciado editamos `` overleaf.rc ``:
 - ````
-  rc_file="$TOOLKIT_DIR/lib/config-seed/overleaf.rc"
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
