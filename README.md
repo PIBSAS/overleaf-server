@@ -148,8 +148,16 @@ Pasos completos!
 - Modificar el ``Dockerfile`` para que use el port creado.
   Localmente:
 - ````
-  cd $HOME/overleaf/server-ce/
+  cd "$HOME/overleaf/server-ce"
   sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
+  sed -i '/^EXPOSE/a \
+  # Paquetes adicionales para soporte en español\n\
+  RUN apt-get update && \\\n\
+      apt-get install -y hunspell-es && \\\n\
+      tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\\n\
+      tlmgr update --all && \\\n\
+      apt-get clean && \\\n\
+      rm -rf /var/lib/apt/lists/*\n' Dockerfile
   ````
   Para Docker Hub:
 - ````
