@@ -99,13 +99,6 @@ Pasos completos!
   sudo apt remove docker-compose-plugin -y
   ````
   
-  sudo apt install docker.io docker-compose docker-buildx -y
-  ````
-- Docker-Compose Pi OS:
-  ````
-  sudo apt install docker.io docker-compose -y
-  ````
-
 - Agregar usuario al grupo docker:
   ````
   sudo usermod -aG docker $USER
@@ -195,26 +188,23 @@ Pasos completos!
   ````
 - Una vez iniciado editamos `` overleaf.rc ``:
 - ````
+  DOCKER_IMAGE=sharelatex-base:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-- Descomentar y modificar:
-- ````
-  # OVERLEAF_IMAGE_NAME=sharelatex/sharelatex
-  ````
 
-- Cambiar a :
+- Una vez iniciado editamos `` overleaf.rc `` para Docker Hub:
 - ````
-  OVERLEAF_IMAGE_NAME=local-sharelatex:arm64
+  DOCKER_IMAGE=pibsas/sharelatex-base:arm64
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
+  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
+  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-- Y:
-- ``OVERLEAF_LISTEN_IP=127.0.0.1`` a:
-  ``
-  OVERLEAF_LISTEN_IP=0.0.0.0
-  ``
 
 - Modificar `` shared-functions.sh ``:
 - ````
