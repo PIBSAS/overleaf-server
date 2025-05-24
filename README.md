@@ -184,7 +184,7 @@ Pasos completos!
 # Editamos en Overleaf Toolkit el archivo de configuracion:
 - Una vez iniciado editamos `` overleaf.rc `` Para root Localmente:
 - ````
-  DOCKER_IMAGE=sharelatex-base:arm64
+  DOCKER_IMAGE=sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
@@ -193,7 +193,7 @@ Pasos completos!
   ````
 - Una vez iniciado editamos `` overleaf.rc `` Para rootless localmente:
 - ````
-  DOCKER_IMAGE=sharelatex-base:arm64
+  DOCKER_IMAGE=sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
@@ -203,7 +203,7 @@ Pasos completos!
   ````
 - Una vez iniciado editamos `` overleaf.rc `` Para root Docker Hub:
 - ````
-  DOCKER_IMAGE=pibsas/sharelatex-base:arm64
+  DOCKER_IMAGE=pibsas/sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
@@ -212,7 +212,7 @@ Pasos completos!
   ````
 - Una vez iniciado editamos `` overleaf.rc `` Para rootless Docker Hub:
 - ````
-  DOCKER_IMAGE=pibsas/sharelatex-base:arm64
+  DOCKER_IMAGE=pibsas/sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
