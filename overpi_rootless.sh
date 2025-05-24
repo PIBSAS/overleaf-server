@@ -10,7 +10,8 @@ TOOLKIT_DIR="overleaf-toolkit"
 DOCKER_IMAGE="sharelatex:arm64"
 
 instalar_dependencias() {
-    sudo apt install git curl uidmap iptables gawk -y
+    sudo apt install -y gawk git curl uidmap ca-certificates gnupg lsb-release
+    sudo modprobe nf_tables
 }
 # Función para instalar Docker si no está
 instalar_docker() {
