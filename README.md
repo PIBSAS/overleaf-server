@@ -73,6 +73,17 @@ Pasos completos!
   sudo apt install git curl -y
   ````
 - Docker-Compose Ubuntu:
+- # Función para instalar Docker si no está
+instalar_docker() {
+    if ! command -v docker &> /dev/null; then
+        echo "🚀 Instalando Docker..."
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh get-docker.sh
+        rm get-docker.sh
+    else
+        echo "✅ Docker ya está instalado."
+    fi
+}
   ````
   sudo apt install docker.io docker-compose docker-buildx -y
   ````
