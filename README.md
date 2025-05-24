@@ -121,7 +121,6 @@ Pasos completos!
   ````
 
 # Portar a ARM64 para Raspberry Pi:
-  
 - ````
   latest=$(curl -sSL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"v\K[0-9.]+' | head -n1) && \
   mkdir -p ~/.docker/cli-plugins && \
@@ -181,12 +180,9 @@ Pasos completos!
   cd $HOME/overleaf
   docker build -t pibsas/sharelatex:arm64 -f server-ce/Dockerfile .
   ````
-# Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
-  ````
-  cd && cd ./overleaf-toolkit
-  ./bin/init
-  ````
-- Una vez iniciado editamos `` overleaf.rc ``:
+  
+# Editamos en Overleaf Toolkit el archivo de configuracion:
+- Una vez iniciado editamos `` overleaf.rc `` Para root Localmente:
 - ````
   DOCKER_IMAGE=sharelatex-base:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
@@ -195,8 +191,17 @@ Pasos completos!
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-
-- Una vez iniciado editamos `` overleaf.rc `` para Docker Hub:
+- Una vez iniciado editamos `` overleaf.rc `` Para rootless localmente:
+- ````
+  DOCKER_IMAGE=sharelatex-base:arm64
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
+  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
+  sed -i "s|^OVERLEAF_PORT=.*|OVERLEAF_PORT=8080|" "$rc_file"
+  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
+  ````
+- Una vez iniciado editamos `` overleaf.rc `` Para root Docker Hub:
 - ````
   DOCKER_IMAGE=pibsas/sharelatex-base:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
@@ -205,7 +210,16 @@ Pasos completos!
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-
+- Una vez iniciado editamos `` overleaf.rc `` Para rootless Docker Hub:
+- ````
+  DOCKER_IMAGE=pibsas/sharelatex-base:arm64
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
+  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
+  sed -i "s|^OVERLEAF_PORT=.*|OVERLEAF_PORT=8080|" "$rc_file"
+  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
+  ````
 - Modificar `` shared-functions.sh ``:
 - ````
   shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
@@ -215,30 +229,11 @@ Pasos completos!
     -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
     "$shared_functions"
   ````
-- Agregamos ``:$version`` en el if else:
-  - `` image_name="quay.io/sharelatex/sharelatex-pro" ``
-  - `` image_name="sharelatex/sharelatex" ``
-  
-- Y a ``export IMAGE="$image_name:$version" `` se lo quitamos:
+
+# Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
   ````
-  export IMAGE="$image_name"
-  ````
-- Quedando asi:
-- ````
-  function set_server_pro_image_name() {
-    local version=$1
-    local image_name
-    if [[ -n ${OVERLEAF_IMAGE_NAME:-} ]]; then
-      image_name="$OVERLEAF_IMAGE_NAME"
-    else
-      if [[ $SERVER_PRO == "true" ]]; then
-        image_name="quay.io/sharelatex/sharelatex-pro:$version"
-      else
-        image_name="sharelatex/sharelatex:$version"
-      fi
-    fi
-    export IMAGE="$image_name"
-    }
+  cd && cd ./overleaf-toolkit
+  ./bin/init
   ````
 
 ## Levantar Overleaf Toolkit:
