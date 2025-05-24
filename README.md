@@ -146,12 +146,15 @@ Pasos completos!
   ````
   
 - Modificar el ``Dockerfile`` para que use el port creado.
-  ````
-  nano Dockerfile
-  ````
-- Cambiamos de ``FROM $OVERLEAF_BASE_TAG`` a ``FROM local-sharelatex-base:arm64`` Guardamos
+  Localmente:
 - ````
-  cd ~/overleaf
+  cd $HOME/overleaf/server-ce/
+  sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
+  ````
+  Para Docker Hub:
+- ````
+  cd $HOME/overleaf/server-ce/
+  sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=pibsas/sharelatex-base:arm64|' Dockerfile
   ````
 - Construimos localmente:
 - ````
