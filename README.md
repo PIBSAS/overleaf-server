@@ -68,9 +68,9 @@ Pasos completos!
   En Ubuntu Desktop necesitamos instalar curl.
   
 ## Requisitos:
-- Git:
+- Git, Curl, Uidmap, Docker Compose V2:
   ````
-  sudo apt install git curl -y
+  sudo apt install git curl uidmap docker-compose-plugin -y
   ````
 - Docker-Compose Ubuntu:
   Docker con root:
@@ -81,7 +81,7 @@ Pasos completos!
   ````
   Docker rootless:
   ````
-  sudo apt install uidmap -y
+  sudo apt install uidmap docker-compose-plugin -y
   curl -fsSL https://get.docker.com/rootless | sh
   echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
   echo 'export DOCKER_HOST=unix:///run/user/1000/docker.sock' >> ~/.bashrc
@@ -96,6 +96,7 @@ Pasos completos!
   source ~/.bashrc
   cd ~/bin
   rm -f containerd containerd-shim containerd-shim-runc-v2 ctr docker docker-init docker-proxy dockerd dockerd-rootless-setuptool.sh dockerd-rootless.sh rootlesskit rootlesskit-docker-proxy runc vpnkit
+  sudo apt remove docker-compose-plugin -y
   ````
   
   sudo apt install docker.io docker-compose docker-buildx -y
@@ -215,11 +216,15 @@ Pasos completos!
   OVERLEAF_LISTEN_IP=0.0.0.0
   ``
 
-- Modificar:
-  ``
-  nano overleaf-toolkit/lib/shared-functions.sh
-  ``
-  
+- Modificar `` shared-functions.sh ``:
+- ````
+  shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
+  sed -i \
+    -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
+    -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
+    -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
+    "$shared_functions"
+  ````
 - Agregamos ``:$version`` en el if else:
   - `` image_name="quay.io/sharelatex/sharelatex-pro" ``
   - `` image_name="sharelatex/sharelatex" ``
