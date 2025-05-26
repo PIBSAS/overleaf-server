@@ -72,8 +72,7 @@ Pasos completos!
   ````
   sudo apt install git curl uidmap -y
   ````
-- Docker-Compose Ubuntu:
-  Docker con root:
+- Docker:
 - ````
   curl -fsSL https://get.docker.com -o get-docker.sh
   sudo sh get-docker.sh
@@ -89,13 +88,9 @@ Pasos completos!
   ````
 - Ahora que agregamos el repo de docker a nuestro sistema instalamos la dependencia faltante:
 - ````
-  sudo apt install docker-compose-plugin
+  sudo apt install docker-compose-plugin -y
   ````
-- Clone Overleaf:
-  ````
-  gh repo clone overleaf/overleaf
-  ````
-  or
+- Clonar Overleaf:
   ````
   git clone https://github.com/overleaf/overleaf.git
   ````
@@ -105,25 +100,28 @@ Pasos completos!
   ````
 
 # Portar a ARM64 para Raspberry Pi:
+- Obtenemos la última version de buildx.
 - ````
   latest=$(curl -sSL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"v\K[0-9.]+' | head -n1) && \
   mkdir -p ~/.docker/cli-plugins && \
   curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v${latest}.linux-arm64" -o ~/.docker/cli-plugins/docker-buildx && \
   chmod +x ~/.docker/cli-plugins/docker-buildx
   ````
+- Nos movemos al directorio:
 - ````
   cd overleaf/server-ce/
   ````
+- Construimos la imagen para uso local:
 - ````
   DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
   ````
-  Y si pensamos subirla a Docker Hub indicamos nuestro nombre de usuario(mi usuario en Docker Hub es pibsas):
+- Construimos la imagen para Docker Hub, si pensamos compartirla o reusarla en otro dispositivo, indicamos nuestro nombre de usuario(mi usuario en Docker Hub es pibsas):
 - ````
   DOCKER_BUILDKIT=1 docker build -t pibsas/sharelatex-base:arm64 -f Dockerfile-base .
   ````
   
 - Modificar el ``Dockerfile`` para que use el port creado.
-  Localmente:
+  Local:
 - ````
   cd "$HOME/overleaf/server-ce"
   sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
