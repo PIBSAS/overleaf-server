@@ -175,13 +175,17 @@ Pasos completos!
      ````
      docker push pibsas/sharelatex:5.4.1
      ````
-# Tu imagen estará disponible para reutilizar, haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
+# Tu imagen estará disponible para reutilizar:
+- Haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
   ````
   docker pull pibsas/sharelatex:5.4.1
   ````
-# Editamos en Overleaf Toolkit el archivo de configuracion:
-- Una vez iniciado editamos `` overleaf.rc `` Para root Localmente:
+# Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
+
+### Editamos en Overleaf Toolkit el archivo de configuracion:
+- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Local:
 - ````
+  cd
   DOCKER_IMAGE=sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
@@ -189,37 +193,19 @@ Pasos completos!
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-- Una vez iniciado editamos `` overleaf.rc `` Para rootless localmente:
+- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Docker Hub:
 - ````
-  DOCKER_IMAGE=sharelatex:arm64
-  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
-  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
-  sed -i "s|^OVERLEAF_PORT=.*|OVERLEAF_PORT=8080|" "$rc_file"
-  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
-  ````
-- Una vez iniciado editamos `` overleaf.rc `` Para root Docker Hub:
-- ````
+  cd
   DOCKER_IMAGE=pibsas/sharelatex:arm64
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
-  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
-  ````
-- Una vez iniciado editamos `` overleaf.rc `` Para rootless Docker Hub:
-- ````
-  DOCKER_IMAGE=pibsas/sharelatex:arm64
-  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
-  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
-  sed -i "s|^OVERLEAF_PORT=.*|OVERLEAF_PORT=8080|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
 - Modificar `` shared-functions.sh ``:
 - ````
+  cd
   shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
   sed -i \
     -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
@@ -236,11 +222,11 @@ Pasos completos!
 
 ## Levantar Overleaf Toolkit:
 - ````
-  cd ..
   ./bin/up
   ````
-
-- Si falla remover y levantar:
+  Listo!
+  
+### Si falla remover y levantar:
 - ````
   docker rm -f overleaf sharelatex redis mongo
   ````
@@ -275,7 +261,7 @@ Si ves el login, anda aca y crea la cuenta:
   http://IP/launchpad
   ````
 
-# Actualizar o instalar extras en el docker creado:
+# Actualizar o instalar extras en el docker creado entrando en su Shell:
 - ````
   docker exec -it sharelatex bash
   apt update
