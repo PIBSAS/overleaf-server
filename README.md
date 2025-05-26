@@ -70,7 +70,7 @@ Pasos completos!
 ## Requisitos:
 - Git, Curl, Uidmap, Docker Compose V2:
   ````
-  sudo apt install git curl uidmap docker-compose-plugin -y
+  sudo apt install git curl uidmap -y
   ````
 - Docker-Compose Ubuntu:
   Docker con root:
@@ -79,26 +79,6 @@ Pasos completos!
   sudo sh get-docker.sh
   rm get-docker.sh
   ````
-  Docker rootless:
-  ````
-  sudo apt install uidmap docker-compose-plugin -y
-  curl -fsSL https://get.docker.com/rootless | sh
-  echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
-  echo 'export DOCKER_HOST=unix:///run/user/1000/docker.sock' >> ~/.bashrc
-  source ~/.bashrc
-  ````
-  Si se desea desinstalar:
-  ````
-  dockerd-rootless-setuptool.sh uninstall
-  rootlesskit rm -rf ~/.local/share/docker.
-  sed -i '/export PATH=\$HOME\/bin:\$PATH/d' ~/.bashrc
-  sed -i '/export DOCKER_HOST=unix:\/\/\/run\/user\/1000\/docker.sock/d' ~/.bashrc
-  source ~/.bashrc
-  cd ~/bin
-  rm -f containerd containerd-shim containerd-shim-runc-v2 ctr docker docker-init docker-proxy dockerd dockerd-rootless-setuptool.sh dockerd-rootless.sh rootlesskit rootlesskit-docker-proxy runc vpnkit
-  sudo apt remove docker-compose-plugin -y
-  ````
-  
 - Agregar usuario al grupo docker:
   ````
   sudo usermod -aG docker $USER
@@ -106,6 +86,10 @@ Pasos completos!
 - Reiniciar:
   ````
   reboot
+  ````
+- Ahora que agregamos el repo de docker a nuestro sistema instalamos la dependencia faltante:
+- ````
+  sudo apt install docker-compose-plugin
   ````
 - Clone Overleaf:
   ````
