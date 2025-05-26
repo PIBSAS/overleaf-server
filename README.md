@@ -162,7 +162,23 @@ Pasos completos!
   cd $HOME/overleaf
   docker build -t pibsas/sharelatex:arm64 -f server-ce/Dockerfile .
   ````
-  
+#  Subir imagen a Docker Hub (3 pasos)
+  1. Iniciar sesión en Docker Hub:
+     ````
+     docker login
+     ````
+  2. Etiquetar la imagen, usamos la etiqueta 5.4.1 requerida por overleaf-tooolkit:
+     ````
+     docker tag pibsas/sharelatex:arm64 pibsas/sharelatex:5.4.1
+     ````
+  3. Subirla a Docker Hub:
+     ````
+     docker push pibsas/sharelatex:5.4.1
+     ````
+# Tu imagen estará disponible para reutilizar, haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
+  ````
+  docker pull pibsas/sharelatex:5.4.1
+  ````
 # Editamos en Overleaf Toolkit el archivo de configuracion:
 - Una vez iniciado editamos `` overleaf.rc `` Para root Localmente:
 - ````
