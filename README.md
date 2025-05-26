@@ -222,7 +222,7 @@ Pasos completos!
 
 ## Levantar Overleaf Toolkit:
 - ````
-  ./bin/up
+  ./bin/up -d
   ````
   Listo!
   
@@ -248,7 +248,7 @@ Pasos completos!
 - Levantar overleaf:
 - ````
   cd ../overleaf-toolkit
-  ./bin/up
+  ./bin/up -d
   ````
 
 # Entrar:
