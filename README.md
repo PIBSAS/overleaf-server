@@ -319,7 +319,7 @@ Si ves el login, anda aca y crea la cuenta:
 - Editamos `` overleaf.rc ``:
 - ````
   cd
-  DOCKER_IMAGE=pibsas/sharelatex:arm64
+  DOCKER_IMAGE=pibsas/sharelatex:5.4.1
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
