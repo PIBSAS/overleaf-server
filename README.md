@@ -315,17 +315,8 @@ Si ves el login, anda aca y crea la cuenta:
   ````
 
 ### Editamos en Overleaf Toolkit el archivo de configuracion:
-- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Local:
-- ````
-  cd
-  DOCKER_IMAGE=sharelatex:arm64
-  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
-  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
-  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
-  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
-  ````
-- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Docker Hub:
+
+- Editamos `` overleaf.rc ``:
 - ````
   cd
   DOCKER_IMAGE=pibsas/sharelatex:arm64
@@ -335,6 +326,7 @@ Si ves el login, anda aca y crea la cuenta:
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
+  
 - Modificar `` shared-functions.sh ``:
 - ````
   cd
