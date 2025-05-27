@@ -13,7 +13,7 @@ Pasos completos!
   ````
   En Ubuntu Desktop debemos instalar curl:
   ````
-  sudo apt install curl -y
+  sudo apt install curl gawk -y
   ````
 
   Reiniciar y ejecutar la siguiente linea:
@@ -90,16 +90,7 @@ Pasos completos!
 - ````
   sudo apt install docker-compose-plugin -y
   ````
-- Clonar Overleaf:
-  ````
-  git clone https://github.com/overleaf/overleaf.git
-  ````
-- Clonar Overleaf Toolkit:
-  ````
-  git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
-  ````
 
-# Portar a ARM64 para Raspberry Pi:
 - Obtenemos la última version de buildx.
 - ````
   latest=$(curl -sSL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"v\K[0-9.]+' | head -n1) && \
@@ -107,6 +98,13 @@ Pasos completos!
   curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v${latest}.linux-arm64" -o ~/.docker/cli-plugins/docker-buildx && \
   chmod +x ~/.docker/cli-plugins/docker-buildx
   ````
+
+# Portar Overleaf a ARM64 para Raspberry Pi:
+- Clonar Overleaf:
+  ````
+  git clone https://github.com/overleaf/overleaf.git
+  ````
+
 - Nos movemos al directorio:
 - ````
   cd overleaf/server-ce/
@@ -180,8 +178,15 @@ Pasos completos!
   ````
   docker pull pibsas/sharelatex:5.4.1
   ````
+
+
 # Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
 
+- Clonar Overleaf Toolkit:
+  ````
+  git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+  ````
+  
 ### Editamos en Overleaf Toolkit el archivo de configuracion:
 - Una vez iniciado editamos `` overleaf.rc `` Para root imagen Local:
 - ````
@@ -220,7 +225,7 @@ Pasos completos!
   ./bin/init
   ````
 
-## Levantar Overleaf Toolkit:
+## Levantar el servidor:
 - ````
   ./bin/up -d
   ````
@@ -292,3 +297,59 @@ Si ves el login, anda aca y crea la cuenta:
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
   ````
+
+# Si reutilizas la imagen que subiste a Docker Hub los pasos se reducen a esto:
+  ````
+  docker pull pibsas/sharelatex:5.4.1
+  ````
+
+# Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
+
+- Clonar Overleaf Toolkit:
+  ````
+  git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+  ````
+
+### Editamos en Overleaf Toolkit el archivo de configuracion:
+- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Local:
+- ````
+  cd
+  DOCKER_IMAGE=sharelatex:arm64
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
+  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
+  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
+  ````
+- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Docker Hub:
+- ````
+  cd
+  DOCKER_IMAGE=pibsas/sharelatex:arm64
+  rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
+  sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
+  sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
+  sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
+  ````
+- Modificar `` shared-functions.sh ``:
+- ````
+  cd
+  shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
+  sed -i \
+    -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
+    -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
+    -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
+    "$shared_functions"
+  ````
+
+# Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
+  ````
+  cd && cd ./overleaf-toolkit
+  ./bin/init
+  ````
+
+## Levantar el servidor:
+- ````
+  ./bin/up -d
+  ````
+  Listo!
