@@ -301,6 +301,8 @@ Si ves el login, anda aca y crea la cuenta:
   ````
 
 # Si reutilizas la imagen que subiste a Docker Hub los pasos se reducen a esto:
+- Cumplir la sección [Requisitos](#requisitos)
+- Una vez instalados los requisitos hacemos el pull de la imagen::
   ````
   docker pull pibsas/sharelatex:5.4.1
   ````
