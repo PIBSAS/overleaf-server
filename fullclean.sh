@@ -16,7 +16,7 @@ echo "🧹 Eliminando imágenes Docker (esto puede tardar)..."
 docker rmi $(docker images -q) 2>/dev/null || true
 
 echo "📁 Eliminando directorio overleaf-toolkit..."
-sudo rm -rf ~/overleaf-toolkit
+sudo rm -rf $HOME/overleaf-toolkit
 
 echo "🧹 Eliminando entrada de cron para Overleaf..."
 CRON_LINE="@reboot cd \$HOME/overleaf-toolkit && ./bin/up -d"
@@ -39,7 +39,10 @@ if [ -z "$(getent group docker | cut -d: -f4)" ]; then
 else
 
 echo "🗑️ Eliminando configuración local de Docker (~/.docker)..."
-rm -rf ~/.docker
+sudo rm -rf $HOME/.docker
+sudo rm -rf $HOME/bin
+sudo rm -rf $HOME/overleaf
+sudo rm -rf $HOME/overleaf-toolkit
 
     echo "ℹ️ El grupo 'docker' aún tiene miembros, no se elimina."
 fi
