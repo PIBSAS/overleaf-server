@@ -1,4 +1,4 @@
-# Overleaf Server
+# Overleaf Community Edition Server en Raspberry Pi
 Pasos completos!
 
 
@@ -359,11 +359,15 @@ Si ves el login, anda aca y crea la cuenta:
   Listo!
 
 
-  # Limpieza total, desinstalamos todo!:
+# Limpieza total, desinstalamos todo!:
 
 
-  - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
+- Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
+
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
   ````
+
+
+# Visita para más tutoriales: [Luciano's tech](https://sites.google.com/view/lucianostech/docker-compose)
 
