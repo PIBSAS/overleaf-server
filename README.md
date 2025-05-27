@@ -39,7 +39,7 @@ Pasos completos!
   ````
   Y:
 - ````
-  sudo rm -rf ~/overleaf-toolkit
+  sudo rm -rf $HOME/overleaf-toolkit
   ````
   Finalmente:
 - ````
@@ -55,7 +55,7 @@ Pasos completos!
   ````
   En Ubuntu Desktop debemos instalar curl:
   ````
-  sudo apt install curl -y
+  sudo apt install curl gawk-y
   ````
 
   Reiniciar y ejecutar la siguiente linea:
@@ -70,13 +70,7 @@ Pasos completos!
 ## Requisitos:
 - Git, Curl, Uidmap, Docker Compose V2:
   ````
-  sudo apt install git curl uidmap -y
-  ````
-- Docker:
-- ````
-  curl -fsSL https://get.docker.com -o get-docker.sh
-  sudo sh get-docker.sh
-  rm get-docker.sh
+  sudo apt install git curl uidmap gawk -y
   ````
 - Agregar usuario al grupo docker:
   ````
@@ -86,6 +80,14 @@ Pasos completos!
   ````
   reboot
   ````
+
+- Docker:
+- ````
+  curl -fsSL https://get.docker.com -o get-docker.sh
+  sudo sh get-docker.sh
+  rm get-docker.sh
+  ````
+
 - Ahora que agregamos el repo de docker a nuestro sistema instalamos la dependencia faltante:
 - ````
   sudo apt install docker-compose-plugin -y
@@ -247,12 +249,12 @@ Pasos completos!
   ````
 - Reconstruir:
 - ````
-  cd ../overleaf
+  cd $HOME/overleaf
   docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
   ````
 - Levantar overleaf:
 - ````
-  cd ../overleaf-toolkit
+  cd $HOME/overleaf-toolkit
   ./bin/up -d
   ````
 
@@ -277,7 +279,7 @@ Si ves el login, anda aca y crea la cuenta:
   ````
 - Reiniciar Overleaf Toolkit:
 - ````
-  cd ~/overleaf-toolkit
+  cd $HOME/overleaf-toolkit
   ./bin/restart
   ````
   O:
