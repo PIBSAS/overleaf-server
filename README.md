@@ -1,6 +1,9 @@
-# Overleaf Community Edition Server en Raspberry Pi
-Pasos completos!
+<h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
 
+<p align="center">
+  <img src="overleaf.png" />
+</p>
+<h3 align="center"> Pasos completos!</h3>
 
 # Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
 
