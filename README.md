@@ -85,17 +85,17 @@ Pasos completos!
   rm get-docker.sh
   ````
 
-- Agregar usuario al grupo docker:
-  ````
-  sudo usermod -aG docker $USER
-  ````
-
 - Obtenemos la última version de buildx.
 - ````
   latest=$(curl -sSL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"v\K[0-9.]+' | head -n1) && \
   mkdir -p ~/.docker/cli-plugins && \
   curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v${latest}.linux-arm64" -o ~/.docker/cli-plugins/docker-buildx && \
   chmod +x ~/.docker/cli-plugins/docker-buildx
+  ````
+
+- Agregar usuario al grupo docker:
+  ````
+  sudo usermod -aG docker $USER
   ````
 
 - Reiniciar:
@@ -182,6 +182,11 @@ Pasos completos!
      ````
      docker push pibsas/sharelatex:5.4.1
      ````
+     El tag requerido lo podremos obtener del repo de overleaf-toolkit en el archivo:
+     ````
+     cat $HOME/overleaf-toolkit/lib/config-seed/version
+     ````
+
 # Tu imagen estará disponible para reutilizar:
 - Haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
   ````
@@ -310,10 +315,6 @@ Si ves el login, anda aca y crea la cuenta:
 
 
 - Cumplir la sección [Requisitos](#requisitos)
-- Una vez instalados los requisitos hacemos el pull de la imagen::
-  ````
-  docker pull pibsas/sharelatex:5.4.1
-  ````
 
 # Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
 
