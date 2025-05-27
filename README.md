@@ -280,6 +280,13 @@ Si ves el login, anda aca y crea la cuenta:
   docker restart sharelatex
   ````
 
+  
+# Agregar a cron para que se inicie el servidor al iniciar la raspberry pi:
+  ````
+  (crontab -l 2>/dev/null | grep -vF '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d'; echo '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d') | crontab -
+  ````
+
+
 # Limpieza total, desinstalamos todo!:
   - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
 - ````
