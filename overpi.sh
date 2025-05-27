@@ -5,7 +5,7 @@ set -e
 # CONFIGURACIÓN
 TOOLKIT_REPO="https://github.com/overleaf/toolkit.git"
 TOOLKIT_DIR="overleaf-toolkit"
-DOCKER_IMAGE="pibsas/sharelatex-base"
+DOCKER_IMAGE="pibsas/sharelatex:5.4.1"
 
 # Función para instalar Docker si no está
 instalar_docker() {
