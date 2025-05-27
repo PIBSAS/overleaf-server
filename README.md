@@ -72,15 +72,7 @@ Pasos completos!
   ````
   sudo apt install git curl uidmap gawk -y
   ````
-- Agregar usuario al grupo docker:
-  ````
-  sudo usermod -aG docker $USER
-  ````
-- Reiniciar:
-  ````
-  reboot
-  ````
-
+  
 - Docker:
 - ````
   curl -fsSL https://get.docker.com -o get-docker.sh
@@ -88,9 +80,9 @@ Pasos completos!
   rm get-docker.sh
   ````
 
-- Ahora que agregamos el repo de docker a nuestro sistema instalamos la dependencia faltante:
-- ````
-  sudo apt install docker-compose-plugin -y
+- Agregar usuario al grupo docker:
+  ````
+  sudo usermod -aG docker $USER
   ````
 
 - Obtenemos la última version de buildx.
@@ -100,6 +92,12 @@ Pasos completos!
   curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v${latest}.linux-arm64" -o ~/.docker/cli-plugins/docker-buildx && \
   chmod +x ~/.docker/cli-plugins/docker-buildx
   ````
+
+- Reiniciar:
+  ````
+  reboot
+  ````
+
 
 # Portar Overleaf a ARM64 para Raspberry Pi:
 - Clonar Overleaf:
