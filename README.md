@@ -6,12 +6,12 @@ Pasos completos!
 
 
 ## Script que utiliza una imagen de docker ya creada con los pasos descriptos mas abajo:
-  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo.
+  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo. Con este script solo levantamos el servidor listo para usar, usando la imagen que comparto en Docker Hub.
 - ````
   sudo groupadd docker
   sudo usermod -aG docker $USER
   ````
-  En Ubuntu Desktop debemos instalar curl:
+  En Ubuntu Desktop debemos instalar curl y gawk:
   ````
   sudo apt install curl gawk -y
   ````
@@ -47,18 +47,23 @@ Pasos completos!
   ````
 
 
-## Script instalación construyendo imagen docker para ARM64:
-  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo.
+## Script instalación construyendo imagen docker para el port ARM64 para Raspberry Pi:
+  Primero debemos crear el grupo docker y agregar nuestro usuario al grupo. Con este script hacemos todo el proceso, portar Overleaf a ARM64 y levantar el servidor usando la imagen creada localmente.
 - ````
   sudo groupadd docker
   sudo usermod -aG docker $USER
   ````
-  En Ubuntu Desktop debemos instalar curl:
+  Instalar curl y gawk:
   ````
   sudo apt install curl gawk-y
   ````
 
-  Reiniciar y ejecutar la siguiente linea:
+  Reiniciar
+  ````
+  reboot
+  ````
+  
+### Una vez reiniciado el sistema ejecutar la siguiente línea:
 - ````
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
   ````
@@ -160,7 +165,11 @@ Pasos completos!
   cd $HOME/overleaf
   docker build -t pibsas/sharelatex:arm64 -f server-ce/Dockerfile .
   ````
+
+  
 #  Subir imagen a Docker Hub (3 pasos)
+
+
   1. Iniciar sesión en Docker Hub:
      ````
      docker login
@@ -181,6 +190,7 @@ Pasos completos!
 
 
 # Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
+
 
 - Clonar Overleaf Toolkit:
   ````
@@ -219,7 +229,10 @@ Pasos completos!
     "$shared_functions"
   ````
 
+
 # Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
+
+
   ````
   cd && cd ./overleaf-toolkit
   ./bin/init
@@ -250,7 +263,7 @@ Pasos completos!
   cd $HOME/overleaf
   docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
   ````
-- Levantar overleaf:
+- Levantar overleaf server:
 - ````
   cd $HOME/overleaf-toolkit
   ./bin/up -d
@@ -287,18 +300,15 @@ Si ves el login, anda aca y crea la cuenta:
 
   
 # Agregar a cron para que se inicie el servidor al iniciar la raspberry pi:
+
   ````
-  (crontab -l 2>/dev/null | grep -vF '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d'; echo '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d') | crontab -
+  (crontab -l 2>/dev/null | grep -vF '@reboot cd ~/overleaf-toolkit && ./bin/up -d'; echo '@reboot cd  ~/overleaf-toolkit && ./bin/up -d') | crontab -
   ````
 
-
-# Limpieza total, desinstalamos todo!:
-  - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
-- ````
-  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
-  ````
 
 # Si reutilizas la imagen que subiste a Docker Hub los pasos se reducen a esto:
+
+
 - Cumplir la sección [Requisitos](#requisitos)
 - Una vez instalados los requisitos hacemos el pull de la imagen::
   ````
@@ -347,3 +357,13 @@ Si ves el login, anda aca y crea la cuenta:
   ./bin/up -d
   ````
   Listo!
+
+
+  # Limpieza total, desinstalamos todo!:
+
+
+  - Desinstala Docker, las imagenes, los volumenes, las redes, la carpeta clonada, elimina al usuario del grupo docker, elimina al grupo docker, elimina el cron del booteo que inicia el server al bootear.
+- ````
+  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/fullclean.sh | bash
+  ````
+
