@@ -177,13 +177,13 @@
      ````
      docker login
      ````
-  2. Etiquetar la imagen, usamos la etiqueta 5.4.1 requerida por overleaf-tooolkit:
+  2. Etiquetar la imagen, usamos la etiqueta 5.5.0 requerida por overleaf-tooolkit:
      ````
-     docker tag pibsas/sharelatex:arm64 pibsas/sharelatex:5.4.1
+     docker tag pibsas/sharelatex:arm64 pibsas/sharelatex:5.5.0
      ````
   3. Subirla a Docker Hub:
      ````
-     docker push pibsas/sharelatex:5.4.1
+     docker push pibsas/sharelatex:5.5.0
      ````
      El tag requerido lo podremos obtener del repo de overleaf-toolkit en el archivo:
      ````
@@ -193,7 +193,7 @@
 # Tu imagen estará disponible para reutilizar:
 - Haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
   ````
-  docker pull pibsas/sharelatex:5.4.1
+  docker pull pibsas/sharelatex:5.5.0
   ````
 
 
@@ -331,7 +331,7 @@ Si ves el login, anda aca y crea la cuenta:
 - Editamos `` overleaf.rc ``:
 - ````
   cd
-  DOCKER_IMAGE=pibsas/sharelatex:5.4.1
+  DOCKER_IMAGE=pibsas/sharelatex:5.5.0
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
