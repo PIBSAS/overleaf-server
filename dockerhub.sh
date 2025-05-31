@@ -80,6 +80,8 @@ sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
 sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
 sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
 
-echo "Ahora hacé login en Docker Hub y subí la imagen:"
-echo "docker login"
-echo "docker push $USER_DOCK/sharelatex:$TAG"
+echo "== Subiendo imagen a tu Docker Hub =="
+docker push "$USER_DOCK/sharelatex:$TAG" || {
+  echo "❌ Falló el push. ¿Olvidaste hacer 'docker login' antes de ejecutar el script?"
+  exit 1
+}
