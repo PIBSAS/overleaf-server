@@ -1,7 +1,13 @@
 #!/bin/bash
 
 set -e
-USER_DOCK=pibsas # modify for your use
+
+if [ -z "$USER_DOCK" ]; then
+  echo "ERROR: Debes declarar la variable USER_DOCK antes de ejecutar el script."
+  echo "Ejemplo: USER_DOCK=jaimito curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash"
+  exit 1
+fi
+
 OVERLEAF_DIR="$HOME/overleaf"
 TOOLKIT_DIR="$HOME/overleaf-toolkit"
 echo "=== Borrando repositorios existentes ==="
@@ -73,15 +79,6 @@ sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
 sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
 sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
 
-#echo "== Editamos el script shared-functions =="
-#cd
-#shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
-#sed -i \
-#  -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
-#  -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
-#  -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
-#  "$shared_functions"
-
 echo "=== Inicializando toolkit ==="
 cd "$TOOLKIT_DIR"
 ./bin/init
@@ -95,28 +92,3 @@ cd "$TOOLKIT_DIR"
 
 echo "=== Overleaf disponible en: http://$(hostname -I | awk '{print $1}'):80 ==="
 echo "=== Crear cuenta en: http://$(hostname -I | awk '{print $1}'):80/launchpad ==="
-
-post_install_overleaf_packages() {
-    echo "=== Instalando paquetes adicionales dentro del contenedor ==="
-
-    CONTAINER_NAME="sharelatex-pi"
-
-    # Esperar a que el contenedor esté corriendo
-    echo "Esperando a que el contenedor '$CONTAINER_NAME' esté activo..."
-    while ! docker ps --format '{{.Names}}' | grep -q "^$CONTAINER_NAME\$"; do
-        sleep 2
-    done
-
-    docker exec "$CONTAINER_NAME" bash -c '
-        if [ ! -f /overleaf/.extras_installed ]; then
-            echo "Instalando paquetes adicionales..."
-            apt update && \
-            apt install -y hunspell-es && \
-            tlmgr install babel-spanish hyphen-spanish collection-langspanish && \
-            tlmgr update --all && \
-            touch /overleaf/.extras_installed
-        else
-            echo "Los paquetes ya están instalados, omitiendo..."
-        fi
-    '
-}
