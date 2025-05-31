@@ -117,13 +117,9 @@
 - ````
   cd overleaf/server-ce/
   ````
-- Construimos la imagen para uso local:
+- Construimos la imagen para uso local y Docker Hub:
 - ````
   DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
-  ````
-- Construimos la imagen para Docker Hub, si pensamos compartirla o reusarla en otro dispositivo, indicamos nuestro nombre de usuario(mi usuario en Docker Hub es pibsas):
-- ````
-  DOCKER_BUILDKIT=1 docker build -t pibsas/sharelatex-base:arm64 -f Dockerfile-base .
   ````
   
 - Modificar el ``Dockerfile`` para que use el port creado.
@@ -142,33 +138,12 @@
       next
   }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
   ````
-  Para Docker Hub:
-- ````
-  cd "$HOME/overleaf/server-ce"
-  sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=pibsas/sharelatex-base:arm64|' Dockerfile
-  awk '/^EXPOSE/ {
-      print;
-      print "# Paquetes adicionales para soporte en español";
-      print "RUN apt-get update && apt-get install -y hunspell-es && \\";
-      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\";
-      print "    tlmgr update --all && \\";
-      print "    apt-get clean && \\";
-      print "    rm -rf /var/lib/apt/lists/*";
-      next
-  }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
-
-  ````
-- Construimos localmente:
+ 
+- Construimos localmente y para Docker hub:
 - ````
   cd $HOME/overleaf
-  docker build -t sharelatex:arm64 -f server-ce/Dockerfile .
+  docker build -t sharelatex -f server-ce/Dockerfile .
   ````
-- Construimos para Docker Hub:
-- ````
-  cd $HOME/overleaf
-  docker build -t pibsas/sharelatex:arm64 -f server-ce/Dockerfile .
-  ````
-
   
 #  Subir imagen a Docker Hub (3 pasos)
 
@@ -177,23 +152,21 @@
      ````
      docker login
      ````
-  2. Etiquetar la imagen, usamos la etiqueta 5.5.0 requerida por overleaf-tooolkit:
+  2. Etiquetar la imagen, usamos la etiqueta requerida por overleaf-tooolkit e ingresamos nuestro usuario, ejemplo: mi usuario es pibsas en Docker hub:
      ````
-     docker tag pibsas/sharelatex:arm64 pibsas/sharelatex:5.5.0
+     USER_DOCK=pibsas
+     TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
+     docker tag sharelatex $USER_DOCK/sharelatex:$TAG
      ````
   3. Subirla a Docker Hub:
      ````
-     docker push pibsas/sharelatex:5.5.0
+     docker push $USER_DOCK/sharelatex:$TAG
      ````
-     El tag requerido lo podremos obtener del repo de overleaf-toolkit en el archivo:
-     ````
-     cat $HOME/overleaf-toolkit/lib/config-seed/version
-     ````
-
+     
 # Tu imagen estará disponible para reutilizar:
-- Haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido:
+- Haciendo un `` docker pull usuario/sharelatex:tag ``, donde usuario será el tuyo y tag será el indicado por overleaf-toolkit que puede variar con el paso del tiempo, obviamente deberas rehacer la imagen o clonar la version que use el tag que hayas definido. Pero usaremos overleaf-toolkit asi que no usaremos esto:
   ````
-  docker pull pibsas/sharelatex:5.5.0
+  docker pull $USER_DOCK/sharelatex:$TAG
   ````
 
 
@@ -206,39 +179,30 @@
   ````
   
 ### Editamos en Overleaf Toolkit el archivo de configuracion:
-- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Local:
+- Una vez iniciado editamos `` overleaf.rc `` Para imagen Local:
 - ````
   cd
-  DOCKER_IMAGE=sharelatex:arm64
+  DOCKER_IMAGE=sharelatex
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-- Una vez iniciado editamos `` overleaf.rc `` Para root imagen Docker Hub:
+
+- Una vez iniciado editamos `` overleaf.rc `` Para Docker Hub:
 - ````
   cd
-  DOCKER_IMAGE=pibsas/sharelatex:arm64
+  DOCKER_IMAGE=$USER_DOCK/sharelatex
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
-- Modificar `` shared-functions.sh ``:
-- ````
-  cd
-  shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
-  sed -i \
-    -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
-    -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
-    -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
-    "$shared_functions"
-  ````
 
 
-# Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
+# Iniciamos Overleaf Toolkit para crear el archivo de configuración:
 
 
   ````
@@ -269,7 +233,7 @@
 - Reconstruir:
 - ````
   cd $HOME/overleaf
-  docker build -t local-sharelatex:arm64 -f server-ce/Dockerfile .
+  docker build -t local-sharelatex -f server-ce/Dockerfile .
   ````
 - Levantar overleaf server:
 - ````
@@ -331,7 +295,7 @@ Si ves el login, anda aca y crea la cuenta:
 - Editamos `` overleaf.rc ``:
 - ````
   cd
-  DOCKER_IMAGE=pibsas/sharelatex:5.5.0
+  DOCKER_IMAGE=$USER_DOCK/sharelatex
   rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
   sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
   sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
@@ -339,17 +303,6 @@ Si ves el login, anda aca y crea la cuenta:
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
   
-- Modificar `` shared-functions.sh ``:
-- ````
-  cd
-  shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
-  sed -i \
-    -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
-    -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
-    -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
-    "$shared_functions"
-  ````
-
 # Iniciamos Overleaf Toolkit para crear el archivo de configuracion:
   ````
   cd && cd ./overleaf-toolkit
