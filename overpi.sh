@@ -2,10 +2,18 @@
 
 set -e
 
-# CONFIGURACIÓN
+if [ -z "$USER_DOCK" ]; then
+  echo "ERROR: Debes declarar la variable USER_DOCK para ejecutar el script."
+  echo "Ejemplo: USER_DOCK=jaimito curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh | bash"
+  exit 1
+fi
+
+# CONFIGURACIONES
 TOOLKIT_REPO="https://github.com/overleaf/toolkit.git"
-TOOLKIT_DIR="overleaf-toolkit"
-DOCKER_IMAGE="pibsas/sharelatex"
+TOOLKIT_DIR="$HOME/overleaf-toolkit"
+echo "Eliminando toolkit anterior (si existe)..."
+sudo rm -rf "$TOOLKIT_DIR"
+DOCKER_IMAGE="$USER_DOCK/sharelatex"
 
 # Función para instalar Docker si no está
 instalar_docker() {
@@ -50,12 +58,6 @@ inicializar_toolkit() {
     ./bin/init
 }
 
-# Descargar imagen Docker
-descargar_imagen() {
-    echo "🐳 Descargando imagen Docker: $DOCKER_IMAGE"
-    docker pull "$DOCKER_IMAGE"
-}
-
 # Iniciar Overleaf
 iniciar_overleaf() {
     echo "🚀 Iniciando Overleaf..."
@@ -78,12 +80,6 @@ if docker ps -a --format '{{.Names}}' | grep -q '^mongo\|^sharelatex\|^redis'; t
     echo "🛑 Deteniendo contenedores de Overleaf previos..."
     docker compose -f "$TOOLKIT_DIR/docker-compose.yml" down || true
 fi
-
-if [ -d "$TOOLKIT_DIR" ]; then
-    echo "🧹 Eliminando toolkit existente..."
-    sudo rm -rf "$TOOLKIT_DIR"
-fi
-
 
 clonar_toolkit
 modificar_config_seed
