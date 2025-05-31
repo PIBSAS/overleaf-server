@@ -27,7 +27,7 @@ fi
 echo "=== Clonando repositorios ==="
 git clone https://github.com/PIBSAS/overleaf.git "$OVERLEAF_DIR"
 git clone https://github.com/overleaf/toolkit.git "$TOOLKIT_DIR"
-TAG=$(cat "$HOME/overleaf-toolkit/lib/version")
+TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
 
 echo "== Instalar Docker =="
 curl -fsSL https://get.docker.com -o get-docker.sh
