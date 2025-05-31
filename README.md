@@ -68,7 +68,7 @@
   
 ### Una vez reiniciado el sistema ejecutar la siguiente línea:
 - ````
-  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
+  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
   ````
 
 
