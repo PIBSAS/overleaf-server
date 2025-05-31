@@ -1,6 +1,11 @@
 #!/bin/bash
 
 set -e
+USER_DOCK=pibsas # modify for your use
+OVERLEAF_DIR="$HOME/overleaf"
+TOOLKIT_DIR="$HOME/overleaf-toolkit"
+echo "=== Borrando repositorios existentes ==="
+rm -rf "$OVERLEAF_DIR" "$TOOLKIT_DIR"
 
 echo "=== Detectando sistema operativo ==="
 OS_NAME=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
@@ -19,8 +24,9 @@ else
 fi
 
 echo "=== Clonando repositorios ==="
-git clone https://github.com/PIBSAS/overleaf.git
-git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+git clone https://github.com/PIBSAS/overleaf.git "$OVERLEAF_DIR"
+git clone https://github.com/overleaf/toolkit.git "$TOOLKIT_DIR"
+TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
 
 echo "== Instalar Docker =="
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -35,12 +41,12 @@ curl -L "https://github.com/docker/buildx/releases/download/v${latest}/buildx-v$
 chmod +x ~/.docker/cli-plugins/docker-buildx
 
 echo "=== Portar Overleaf a ARM64 para Raspberry Pi ==="
-cd overleaf/server-ce/
+cd "$OVERLEAF_DIR/server-ce/"
 export DOCKER_BUILDKIT=1
 DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
 
 echo "=== Modificando Dockerfile para que use la imagen creada e instale los paquetes de idioma español ==="
-cd "$HOME/overleaf/server-ce"
+cd "$OVERLEAF_DIR/server-ce/"
 sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
 awk '/^EXPOSE/ {
     print;
@@ -54,36 +60,37 @@ awk '/^EXPOSE/ {
 }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
 
 echo "== Construimos el port =="
-cd $HOME/overleaf
-docker build -t sharelatex:arm64 -f server-ce/Dockerfile .
+cd "$OVERLEAF_DIR"
+docker build -t sharelatex -f server-ce/Dockerfile .
+docker tag sharelatex $USER_DOCK/sharelatex:$TAG
 
 echo "== Editamos overleaf.rc=="
 cd
-DOCKER_IMAGE=sharelatex:arm64
+DOCKER_IMAGE=sharelatex
 rc_file="$HOME/overleaf-toolkit/lib/config-seed/overleaf.rc"
 sed -i "s|^# *OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
 sed -i "s|^OVERLEAF_IMAGE_NAME=.*|OVERLEAF_IMAGE_NAME=$DOCKER_IMAGE|" "$rc_file"
 sed -i "s|^OVERLEAF_LISTEN_IP=.*|OVERLEAF_LISTEN_IP=0.0.0.0|" "$rc_file"
 sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
 
-echo "== Editamos el script shared-functions =="
-cd
-shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
-sed -i \
-  -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
-  -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
-  -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
-  "$shared_functions"
+#echo "== Editamos el script shared-functions =="
+#cd
+#shared_functions="$HOME/overleaf-toolkit/lib/shared-functions.sh"
+#sed -i \
+#  -e 's|image_name="quay.io/sharelatex/sharelatex-pro"|image_name="quay.io/sharelatex/sharelatex-pro:$version"|' \
+#  -e 's|image_name="sharelatex/sharelatex"|image_name="sharelatex/sharelatex:$version"|' \
+#  -e 's/export IMAGE="\$image_name:\$version"/export IMAGE="\$image_name"/' \
+#  "$shared_functions"
 
 echo "=== Inicializando toolkit ==="
-cd $HOME/overleaf-toolkit
+cd "$TOOLKIT_DIR"
 ./bin/init
 
 echo "=== Agregando cron para iniciar Overleaf al bootear ==="
 (crontab -l 2>/dev/null | grep -vF '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d'; echo '@reboot cd $HOME/overleaf-toolkit && ./bin/up -d') | crontab -
 
 echo "== Levantando el servido Overleaf Community Edition (modo detach) ==="
-cd $HOME/overleaf-toolkit
+cd "$TOOLKIT_DIR"
 ./bin/up -d
 
 echo "=== Overleaf disponible en: http://$(hostname -I | awk '{print $1}'):80 ==="
