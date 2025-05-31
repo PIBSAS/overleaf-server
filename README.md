@@ -291,6 +291,30 @@ Si ves el login, anda aca y crea la cuenta:
   ````
   Listo!
 
+# Creación y subida a Docker Hub de la imagen mediante Script:
+- Creamos el grupo docker y agregamos al usuario:
+  ````
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  ````
+
+- Dependencias del Script:
+  ````
+  sudo apt install curl gawk -y && sudo reboot
+  ````
+
+- Tras haberse reiniciado la Raspberry Pi:
+  Nos logueamos en Docker Hub.
+  ````
+  docker login
+  ````
+
+- Una vez iniciada la sesión, ejecutamos el script indicando nuestro nombre de usuario:
+  Al estar logueados la imagen se creara y luego se subirá con el tag adecuado
+  ````
+  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh | bash
+  ````
+
 
 # Limpieza total, desinstalamos todo!:
 
