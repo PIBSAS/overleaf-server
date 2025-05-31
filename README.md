@@ -21,7 +21,7 @@
 
   Reiniciar y ejecutar la siguiente linea:
 - ````
-  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
+  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
   ````
 
 
@@ -179,7 +179,7 @@
   ````
   
 ### Editamos en Overleaf Toolkit el archivo de configuracion:
-- Una vez iniciado editamos `` overleaf.rc `` Para imagen Local:
+- Editamos `` overleaf.rc `` Para imagen Local:
 - ````
   cd
   DOCKER_IMAGE=sharelatex
@@ -190,7 +190,7 @@
   sed -i "s|^SIBLING_CONTAINERS_ENABLED=.*|SIBLING_CONTAINERS_ENABLED=false|" "$rc_file"
   ````
 
-- Una vez iniciado editamos `` overleaf.rc `` Para Docker Hub:
+- Editamos `` overleaf.rc `` Para Docker Hub:
 - ````
   cd
   DOCKER_IMAGE=$USER_DOCK/sharelatex
