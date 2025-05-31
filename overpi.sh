@@ -85,4 +85,6 @@ clonar_toolkit
 modificar_config_seed
 inicializar_toolkit
 iniciar_overleaf
+echo "=== Overleaf disponible en: http://$(hostname -I | awk '{print $1}'):80 ==="
+echo "=== Crear cuenta en: http://$(hostname -I | awk '{print $1}'):80/launchpad ==="
 agregar_cron_inicio
