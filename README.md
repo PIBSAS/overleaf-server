@@ -16,7 +16,7 @@
   ````
   En Ubuntu Desktop debemos instalar curl y gawk:
   ````
-  sudo apt install curl gawk -y
+  sudo apt install curl gawk -y && sudo reboot
   ````
 
   Reiniciar y ejecutar la siguiente linea:
@@ -30,25 +30,6 @@
   curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
   ````
 
-#### Pasos que realiza:
-- ````
-  docker stop $(docker ps -aq) 2>/dev/null
-  docker rm $(docker ps -aq) 2>/dev/null
-  docker network prune -f
-  ````
-  Luego:
-- ````
-  docker rmi $(docker images -q) 2>/dev/null
-  ````
-  Y:
-- ````
-  sudo rm -rf $HOME/overleaf-toolkit
-  ````
-  Finalmente:
-- ````
-  docker volume prune -f
-  ````
-
 
 ## Script instalación construyendo imagen docker para el port ARM64 para Raspberry Pi:
   Primero debemos crear el grupo docker y agregar nuestro usuario al grupo. Con este script hacemos todo el proceso, portar Overleaf a ARM64 y levantar el servidor usando la imagen creada localmente.
@@ -58,15 +39,10 @@
   ````
   Instalar curl y gawk:
   ````
-  sudo apt install curl gawk-y
-  ````
-
-  Reiniciar
-  ````
-  reboot
+  sudo apt install curl gawk-y && sudo reboot
   ````
   
-### Una vez reiniciado el sistema ejecutar la siguiente línea:
+### Una vez reiniciado el sistema ejecutar la siguiente línea, indicando tu usuario de Docker Hub(o reusas mi imagen):
 - ````
   USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
   ````
