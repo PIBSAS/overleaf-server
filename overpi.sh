@@ -4,7 +4,7 @@ set -e
 
 if [ -z "$USER_DOCK" ]; then
   echo "ERROR: Debes declarar la variable USER_DOCK para ejecutar el script."
-  echo "Ejemplo: USER_DOCK=jaimito curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh | bash"
+  echo "Ejemplo: USER_DOCK=jaimito curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash"
   exit 1
 fi
 
