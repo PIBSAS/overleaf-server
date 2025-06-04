@@ -27,7 +27,7 @@
 
 ### Limpieza por si te falla algo y queres reintentar:
 - ````
-  curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh | bash
+  USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh)"
   ````
 
 
@@ -44,7 +44,7 @@
   
 ### Una vez reiniciado el sistema ejecutar la siguiente línea, indicando tu usuario de Docker Hub(o reusas mi imagen):
 - ````
-  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh | bash
+  USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overleaf.sh)"
   ````
 
 
@@ -312,7 +312,7 @@ Si ves el login, anda aca y crea la cuenta:
 - Una vez iniciada la sesión, ejecutamos el script indicando nuestro nombre de usuario:
   Al estar logueados la imagen se creara y luego se subirá con el tag adecuado
   ````
-  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh | bash
+  USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh)"
   ````
 
 
