@@ -21,7 +21,7 @@
 
   Reiniciar y ejecutar la siguiente linea:
 - ````
-  USER_DOCK=pibsas curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh | bash
+  USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi.sh)"
   ````
 
 
