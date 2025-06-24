@@ -1,4 +1,4 @@
-<h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
+.<h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
 
 <p align="center">
   <img src="overleaf.png" />
@@ -107,7 +107,8 @@
       print;
       print "# Paquetes adicionales para soporte en español";
       print "RUN apt-get update && apt-get install -y hunspell-es && \\";
-      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish && \\";
+      print "    tlmgr update --self && \\";
+      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem && \\";
       print "    tlmgr update --all && \\";
       print "    apt-get clean && \\";
       print "    rm -rf /var/lib/apt/lists/*";
