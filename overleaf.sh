@@ -30,7 +30,7 @@ else
 fi
 
 echo "=== Clonando repositorios ==="
-git clone https://github.com/PIBSAS/overleaf.git "$OVERLEAF_DIR"
+git clone https://github.com/overleaf/overleaf.git "$OVERLEAF_DIR"
 git clone https://github.com/overleaf/toolkit.git "$TOOLKIT_DIR"
 TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
 
