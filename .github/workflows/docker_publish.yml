@@ -21,13 +21,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
-      - name: Build sharelatex-base image locally
+
+      # 👇 USAMOS docker build NORMAL para la imagen base (para que quede disponible localmente)
+      - name: Build sharelatex-base image using classic Docker
         run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            --tag sharelatex-base:arm64 \
-            --load \
+          docker build \
+            -t sharelatex-base:arm64 \
             -f overleaf/server-ce/Dockerfile-base \
             overleaf/server-ce
 
