@@ -16,6 +16,9 @@ jobs:
       - name: Clone official overleaf repo (para Dockerfile)
         run: git clone https://github.com/overleaf/overleaf.git
 
+      - name: Build sharelatex-base image locally
+        run: docker build -t sharelatex-base:arm64 -f overleaf/server-ce/Dockerfile-base overleaf/server-ce
+
       - name: Modify Dockerfile to add Spanish language packages
         run: |
           cd overleaf/server-ce
@@ -31,7 +34,6 @@ jobs:
               print "    rm -rf /var/lib/apt/lists/*";
               next
           }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
-
 
       - name: Clone official overleaf-toolkit repo (para versión)
         run: git clone https://github.com/overleaf/toolkit.git
