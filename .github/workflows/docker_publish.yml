@@ -16,6 +16,23 @@ jobs:
       - name: Clone official overleaf repo (para Dockerfile)
         run: git clone https://github.com/overleaf/overleaf.git
 
+      - name: Modify Dockerfile to add Spanish language packages
+        run: |
+          cd overleaf/server-ce
+          sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
+          awk '/^EXPOSE/ {
+              print;
+              print "# Paquetes adicionales para soporte en español";
+              print "RUN apt-get update && apt-get install -y hunspell-es && \\";
+              print "    tlmgr update --self && \\";
+              print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";
+              print "    tlmgr update --all && \\";
+              print "    apt-get clean && \\";
+              print "    rm -rf /var/lib/apt/lists/*";
+              next
+          }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
+
+
       - name: Clone official overleaf-toolkit repo (para versión)
         run: git clone https://github.com/overleaf/toolkit.git
 
