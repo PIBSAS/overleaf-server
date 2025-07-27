@@ -1,4 +1,4 @@
-name: Test Smart Overleaf Docker Build (ARM64)
+name: Smart Overleaf Docker Build (ARM64)
 
 on:
   schedule:
@@ -32,7 +32,7 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          if [ "${{ env.CURRENT_RELEASE }}" != "${{ steps.get-version.outputs.version }}" ]; then
+          if [ "${{ env.CURRENT_RELEASE }}" == "${{ steps.get-version.outputs.version }}" ]; then
             echo "build_required=true" >> $GITHUB_OUTPUT
             echo "Version change detected (${{ env.CURRENT_RELEASE }} → ${{ steps.get-version.outputs.version }})"
           else
@@ -69,7 +69,8 @@ jobs:
           docker buildx build \
             --platform linux/arm64 \
             --tag pibsas/sharelatex-base:arm64 \
-            --tag pibsas/sharelatex-base:${{ needs.version-check.outputs.new_version }}-test \
+            --tag pibsas/sharelatex-base:${{ needs.version-check.outputs.new_version }} \
+            --tag pibsas/sharelatex-base:latest \
             --push \
             -f server-ce/Dockerfile-base \
             .
@@ -96,7 +97,8 @@ jobs:
           docker buildx build \
             --platform linux/arm64 \
             --push \
-            --tag pibsas/sharelatex:${{ needs.version-check.outputs.new_version }}-test \
+            --tag pibsas/sharelatex:${{ needs.version-check.outputs.new_version }} \
+            --tag pibsas/sharelatex:latest \
             -f server-ce/Dockerfile \
             .
 
