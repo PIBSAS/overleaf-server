@@ -1,4 +1,4 @@
-name: Smart Overleaf Docker Build (ARM64)
+name: Test Smart Overleaf Docker Build (ARM64)
 
 on:
   schedule:
