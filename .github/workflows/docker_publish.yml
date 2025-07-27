@@ -1,8 +1,8 @@
-name: Build and Push Overleaf Docker Image
+name: Build and Push Custom Overleaf (ARM64)
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 0 * * 0'  # Ejecución semanal
   workflow_dispatch:
 
 jobs:
@@ -10,77 +10,74 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout your repo
+      # Configuración inicial
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Clone official overleaf repo
-        run: |
-          git clone https://github.com/overleaf/overleaf.git
-          # Crear estructura de directorios esperada
-          mkdir -p overleaf/server-ce/{bin,config,init_scripts,init_preshutdown_scripts,nginx,logrotate}
+      - name: Clone Overleaf
+        run: git clone --depth 1 https://github.com/overleaf/overleaf.git
 
-      - name: Set up QEMU for ARM builds
+      - name: Set up ARM64 build
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
+      - name: Set up Buildx with cache
         uses: docker/setup-buildx-action@v3
         with:
-          driver-opts: network=host
+          driver-opts: |
+            network=host
+            cache-from=type=gha
+            cache-to=type=gha,mode=max
 
-      - name: Clone version repo
-        run: git clone https://github.com/overleaf/toolkit.git
-
+      # Configuración de versión
       - name: Get version
-        id: get_version
-        run: echo "VERSION=$(cat toolkit/lib/config-seed/version)" >> $GITHUB_ENV
+        id: version
+        run: |
+          git clone --depth 1 https://github.com/overleaf/toolkit.git
+          echo "VERSION=$(cat toolkit/lib/config-seed/version)" >> $GITHUB_ENV
 
-      - name: Login to Docker Hub
+      # Autenticación
+      - name: Docker Hub Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Cache de dependencias
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/buildx
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # Construcción de la imagen base
       - name: Build and push sharelatex-base
         run: |
+          cd overleaf
           docker buildx build \
             --platform linux/arm64 \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --tag pibsas/sharelatex-base:arm64 \
+            --tag pibsas/sharelatex-base:${{ env.VERSION }} \
+            --tag pibsas/sharelatex-base:latest \
             --push \
-            -f overleaf/server-ce/Dockerfile-base \
-            overleaf/server-ce
+            -f server-ce/Dockerfile-base \
+            .
 
-      - name: Prepare build context
-        run: |
-          # Mover archivos a las ubicaciones esperadas por el Dockerfile
-          cp -r overleaf/server-ce/ overleaf/server-ce-original
-          mkdir -p overleaf/server-ce/{bin,config,init_scripts,init_preshutdown_scripts,nginx,logrotate}
-          
-          # Copiar archivos necesarios desde el repo original
-          cp overleaf/server-ce-original/bin/* overleaf/server-ce/bin/ || true
-          cp overleaf/server-ce-original/config/* overleaf/server-ce/config/ || true
-          cp -r overleaf/server-ce-original/init_scripts/* overleaf/server-ce/init_scripts/ || true
-          cp -r overleaf/server-ce-original/init_preshutdown_scripts/* overleaf/server-ce/init_preshutdown_scripts/ || true
-          cp overleaf/server-ce-original/nginx/* overleaf/server-ce/nginx/ || true
-          cp overleaf/server-ce-original/logrotate/* overleaf/server-ce/logrotate/ || true
-          
-          # Archivos raíz
-          cp overleaf/server-ce-original/genScript.js overleaf/server-ce/
-          cp overleaf/server-ce-original/services.js overleaf/server-ce/
-          cp overleaf/package.json overleaf/server-ce/
-          cp overleaf/package-lock.json overleaf/server-ce/
-
-      - name: Modify Dockerfile
+      # Aplicación de tus modificaciones
+      - name: Apply customizations
         run: |
           cd overleaf/server-ce
-          # Usamos la imagen base que acabamos de subir
+          # 1. Usar tu imagen base
           sed -i 's|^FROM .*|FROM pibsas/sharelatex-base:arm64|' Dockerfile
           
-          # Ajustar rutas relativas en el Dockerfile
-          sed -i 's|server-ce/||g' Dockerfile
-          
+          # 2. Paquetes en español
           awk '/^EXPOSE/ {
               print;
-              print "# Paquetes adicionales para soporte en español";
+              print "# Paquetes para español (custom)";
               print "RUN apt-get update && apt-get install -y hunspell-es && \\";
               print "    tlmgr update --self && \\";
               print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";
@@ -90,13 +87,37 @@ jobs:
               next
           }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
 
-      - name: Build and push Overleaf image
+      # Construcción de la imagen principal
+      - name: Build and push main image
         run: |
-          cd overleaf/server-ce
+          cd overleaf
           docker buildx build \
             --platform linux/arm64 \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --push \
             --tag pibsas/sharelatex:${{ env.VERSION }} \
             --tag pibsas/sharelatex:latest \
-            -f Dockerfile \
+            -f server-ce/Dockerfile \
             .
+
+      # Verificación final
+      - name: Verify pushed images
+        run: |
+          echo "✅ Imágenes subidas correctamente:"
+          echo " - Base: pibsas/sharelatex-base:arm64"
+          echo " - Main: pibsas/sharelatex:${{ env.VERSION }}"
+          
+          echo "📦 Tags disponibles en Docker Hub:"
+          curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex/tags/?page_size=10" | \
+            jq -r '"sharelatex: " + (.results[].name | select(. != "latest"))'
+          
+          curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex-base/tags/?page_size=10" | \
+            jq -r '"sharelatex-base: " + (.results[].name | select(. != "latest"))'
+
+      # Limpieza
+      - name: Clean up
+        if: always()
+        run: |
+          docker builder prune -f
+          docker system prune -f
