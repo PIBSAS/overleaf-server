@@ -12,13 +12,15 @@ jobs:
       should_build: ${{ steps.compare.outputs.build_required }}
       new_version: ${{ steps.get-version.outputs.version }}
     steps:
-      - name: Get current Docker Hub version
-        id: current-version
+      - name: Get current RELEASE version from Docker Hub
+        id: current-release
         run: |
-          CURRENT=$(curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex/tags/?page_size=1" | jq -r '.results[0].name')
-          echo "CURRENT=$CURRENT" >> $GITHUB_ENV
-          echo "Current Docker Hub version: $CURRENT"
-
+          # Obtiene la última versión numérica (excluyendo 'latest')
+          CURRENT_RELEASE=$(curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex/tags/?page_size=10" | \
+            jq -r '.results[] | select(.name | test("^[0-9]")) | .name' | head -1)
+          echo "CURRENT_RELEASE=${CURRENT_RELEASE:-none}" >> $GITHUB_ENV
+          echo "Current release version on Docker Hub: $CURRENT_RELEASE"
+      
       - name: Get latest toolkit version
         id: get-version
         run: |
@@ -30,14 +32,14 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          if [ "${{ env.CURRENT }}" != "${{ steps.get-version.outputs.version }}" ]; then
+          if [ "${{ env.CURRENT_RELEASE }}" != "${{ steps.get-version.outputs.version }}" ]; then
             echo "build_required=true" >> $GITHUB_OUTPUT
-            echo "Version change detected (${{ env.CURRENT }} → ${{ steps.get-version.outputs.version }})"
+            echo "Version change detected (${{ env.CURRENT_RELEASE }} → ${{ steps.get-version.outputs.version }})"
           else
             echo "build_required=false" >> $GITHUB_OUTPUT
             echo "No version change detected"
           fi
-
+          
   build:
     needs: version-check
     if: needs.version-check.outputs.should_build == 'true'
