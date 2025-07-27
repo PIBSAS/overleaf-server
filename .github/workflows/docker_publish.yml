@@ -14,7 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone official overleaf repo
-        run: git clone https://github.com/overleaf/overleaf.git
+        run: |
+          git clone https://github.com/overleaf/overleaf.git
+          # Crear estructura de directorios esperada
+          mkdir -p overleaf/server-ce/{bin,config,init_scripts,init_preshutdown_scripts,nginx,logrotate}
 
       - name: Set up QEMU for ARM builds
         uses: docker/setup-qemu-action@v3
@@ -39,7 +42,6 @@ jobs:
 
       - name: Build and push sharelatex-base
         run: |
-          # Construye y sube la imagen base primero
           docker buildx build \
             --platform linux/arm64 \
             --tag pibsas/sharelatex-base:arm64 \
@@ -47,11 +49,34 @@ jobs:
             -f overleaf/server-ce/Dockerfile-base \
             overleaf/server-ce
 
+      - name: Prepare build context
+        run: |
+          # Mover archivos a las ubicaciones esperadas por el Dockerfile
+          cp -r overleaf/server-ce/ overleaf/server-ce-original
+          mkdir -p overleaf/server-ce/{bin,config,init_scripts,init_preshutdown_scripts,nginx,logrotate}
+          
+          # Copiar archivos necesarios desde el repo original
+          cp overleaf/server-ce-original/bin/* overleaf/server-ce/bin/ || true
+          cp overleaf/server-ce-original/config/* overleaf/server-ce/config/ || true
+          cp -r overleaf/server-ce-original/init_scripts/* overleaf/server-ce/init_scripts/ || true
+          cp -r overleaf/server-ce-original/init_preshutdown_scripts/* overleaf/server-ce/init_preshutdown_scripts/ || true
+          cp overleaf/server-ce-original/nginx/* overleaf/server-ce/nginx/ || true
+          cp overleaf/server-ce-original/logrotate/* overleaf/server-ce/logrotate/ || true
+          
+          # Archivos raíz
+          cp overleaf/server-ce-original/genScript.js overleaf/server-ce/
+          cp overleaf/server-ce-original/services.js overleaf/server-ce/
+          cp overleaf/package.json overleaf/server-ce/
+          cp overleaf/package-lock.json overleaf/server-ce/
+
       - name: Modify Dockerfile
         run: |
           cd overleaf/server-ce
           # Usamos la imagen base que acabamos de subir
           sed -i 's|^FROM .*|FROM pibsas/sharelatex-base:arm64|' Dockerfile
+          
+          # Ajustar rutas relativas en el Dockerfile
+          sed -i 's|server-ce/||g' Dockerfile
           
           awk '/^EXPOSE/ {
               print;
@@ -67,10 +92,11 @@ jobs:
 
       - name: Build and push Overleaf image
         run: |
+          cd overleaf/server-ce
           docker buildx build \
             --platform linux/arm64 \
             --push \
             --tag pibsas/sharelatex:${{ env.VERSION }} \
             --tag pibsas/sharelatex:latest \
-            -f overleaf/server-ce/Dockerfile \
-            overleaf/server-ce
+            -f Dockerfile \
+            .
