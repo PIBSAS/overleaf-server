@@ -2,7 +2,7 @@ name: Build and Push Custom Overleaf (ARM64)
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Ejecución semanal
+    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Configuración inicial
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -20,64 +19,61 @@ jobs:
       - name: Set up ARM64 build
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Buildx with cache
+      # Configuración CORREGIDA de Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver-opts: |
-            network=host
-            cache-from=type=gha
-            cache-to=type=gha,mode=max
+          driver: docker-container
+          driver-opts: network=host
+          install: true
 
-      # Configuración de versión
       - name: Get version
         id: version
         run: |
           git clone --depth 1 https://github.com/overleaf/toolkit.git
           echo "VERSION=$(cat toolkit/lib/config-seed/version)" >> $GITHUB_ENV
 
-      # Autenticación
       - name: Docker Hub Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Cache de dependencias
-      - name: Cache Docker layers
+      # Cache separada para Buildx
+      - name: Cache Buildx
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cache/buildx
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          path: /tmp/.buildx-cache
+          key: buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            buildx-
 
-      # Construcción de la imagen base
+      # Construcción de la imagen base CON CACHE CORRECTA
       - name: Build and push sharelatex-base
         run: |
           cd overleaf
           docker buildx build \
             --platform linux/arm64 \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new \
             --tag pibsas/sharelatex-base:arm64 \
             --tag pibsas/sharelatex-base:${{ env.VERSION }} \
             --tag pibsas/sharelatex-base:latest \
             --push \
             -f server-ce/Dockerfile-base \
             .
+          # Mover la nueva cache a la ubicación principal
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      # Aplicación de tus modificaciones
+      # Resto del workflow permanece igual...
       - name: Apply customizations
         run: |
           cd overleaf/server-ce
-          # 1. Usar tu imagen base
           sed -i 's|^FROM .*|FROM pibsas/sharelatex-base:arm64|' Dockerfile
-          
-          # 2. Paquetes en español
           awk '/^EXPOSE/ {
               print;
-              print "# Paquetes para español (custom)";
+              print "# Paquetes para español";
               print "RUN apt-get update && apt-get install -y hunspell-es && \\";
               print "    tlmgr update --self && \\";
               print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";
@@ -87,37 +83,18 @@ jobs:
               next
           }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
 
-      # Construcción de la imagen principal
       - name: Build and push main image
         run: |
           cd overleaf
           docker buildx build \
             --platform linux/arm64 \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new \
             --push \
             --tag pibsas/sharelatex:${{ env.VERSION }} \
             --tag pibsas/sharelatex:latest \
             -f server-ce/Dockerfile \
             .
-
-      # Verificación final
-      - name: Verify pushed images
-        run: |
-          echo "✅ Imágenes subidas correctamente:"
-          echo " - Base: pibsas/sharelatex-base:arm64"
-          echo " - Main: pibsas/sharelatex:${{ env.VERSION }}"
-          
-          echo "📦 Tags disponibles en Docker Hub:"
-          curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex/tags/?page_size=10" | \
-            jq -r '"sharelatex: " + (.results[].name | select(. != "latest"))'
-          
-          curl -s "https://hub.docker.com/v2/repositories/pibsas/sharelatex-base/tags/?page_size=10" | \
-            jq -r '"sharelatex-base: " + (.results[].name | select(. != "latest"))'
-
-      # Limpieza
-      - name: Clean up
-        if: always()
-        run: |
-          docker builder prune -f
-          docker system prune -f
+          # Actualizar cache
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
