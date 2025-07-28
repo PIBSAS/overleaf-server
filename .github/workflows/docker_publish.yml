@@ -1,8 +1,6 @@
 name: Build and Push Custom Overleaf (ARM64)
 
 on:
-  schedule:
-    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
