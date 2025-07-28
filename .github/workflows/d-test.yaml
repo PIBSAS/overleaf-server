@@ -2,7 +2,7 @@ name: Test Smart Overleaf Docker Build (ARM64)
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Ejecución semanal
+    - cron: ''  # Ejecución semanal
   workflow_dispatch:
 
 jobs:
