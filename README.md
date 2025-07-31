@@ -41,7 +41,7 @@ Disfrute!
 
 ## LOS SIGUIENTES PASOS SON PARA USUARIO DESARROLLADOR, QUE DESEA APRENDER, Y NO SOLO INSTALAR Y USAR EL SERVIDOR
 
-- Requiere crear una cuenta gratuita en Docker Hub, así obtendras tu usuario y lo usarás en el comando USER_DOCK=el_usuario_que_creaste
+- Requiere crear una cuenta gratuita en Docker Hub, así obtendras tu usuario y lo usarás en el comando ``USER_DOCK=el_usuario_que_creaste``
 
 
 ---
