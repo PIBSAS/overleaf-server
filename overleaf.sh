@@ -48,25 +48,46 @@ chmod +x ~/.docker/cli-plugins/docker-buildx
 
 echo "=== Portar Overleaf a ARM64 para Raspberry Pi ==="
 cd "$OVERLEAF_DIR/server-ce/"
+
+echo "=== Modificar el Dockerfile-base para agregar soporte en español y paquetes adicionales de LaTeX. ==="
+sed -i 's/\(qpdf \)\\/\1hunspell-es \\/' Dockerfile-base
+sed -i '/^[[:space:]]*xetex[[:space:]]*\\$/a\
+      babel-spanish \\ \
+      hyphen-spanish \\ \
+      collection-langspanish \\ \
+      newunicodechar \\ \
+      float \\ \
+      jknapltx \\ \
+      tools \\ \
+      collection-mathscience \\ \
+      mathtools \\ \
+      amsmath \\ \
+      amsfonts \\ \
+      enumitem \\ \
+      cancel \\ \
+      microtype \\ \
+      tcolorbox \\' Dockerfile-base
+
+echo "=== Construir imagen base para Raspberry Pi ==="
 export DOCKER_BUILDKIT=1
 DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
 
 echo "=== Modificando Dockerfile para que use la imagen creada e instale los paquetes de idioma español ==="
 cd "$OVERLEAF_DIR/server-ce/"
 sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
-awk '/^EXPOSE/ {
-    print;
-    print "# Paquetes adicionales para soporte en español";
-    print "RUN apt-get update && apt-get install -y hunspell-es && \\";
-    print "    tlmgr update --self && \\";
-    print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";    
-    print "    tlmgr update --all && \\";
-    print "    apt-get clean && \\";
-    print "    rm -rf /var/lib/apt/lists/*";
-    next
-}1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
+#awk '/^EXPOSE/ {
+#    print;
+#    print "# Paquetes adicionales para soporte en español";
+#    print "RUN apt-get update && apt-get install -y hunspell-es && \\";
+#    print "    tlmgr update --self && \\";
+#    print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";    
+#    print "    tlmgr update --all && \\";
+#    print "    apt-get clean && \\";
+#    print "    rm -rf /var/lib/apt/lists/*";
+#    next
+#}1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
 
-echo "== Construimos el port =="
+echo "=== Construimos el port de Overleaf basados en la imagen base que hicimos ==="
 cd "$OVERLEAF_DIR"
 docker build -t sharelatex -f server-ce/Dockerfile .
 docker tag sharelatex $USER_DOCK/sharelatex:$TAG
