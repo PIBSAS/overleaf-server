@@ -96,27 +96,23 @@
 
 - Modificar el ``Dockerfile-base`` para agregar soporte en español y paquetes adicionales de LaTeX.
 - ```bash
-  # Agregar el paquete hunspell-es al bloque de apt-get install
   sed -i 's/\(qpdf \)\\/\1hunspell-es \\/' Dockerfile-base
-
-  # Agregar paquetes adicionales al bloque tlmgr install, después de 'xetex \'
   sed -i '/^[[:space:]]*xetex[[:space:]]*\\$/a\
-      babel-spanish \\
-      hyphen-spanish \\
-      collection-langspanish \\
-      newunicodechar \\
-      float \\
-      jknapltx \\
-      tools \\
-      collection-mathscience \\
-      mathtools \\
-      amsmath \\
-      amsfonts \\
-      enumitem \\
-      cancel \\
-      microtype \\
-      tcolorbox \\
-  ' Dockerfile-base
+      babel-spanish \\ \
+      hyphen-spanish \\ \
+      collection-langspanish \\ \
+      newunicodechar \\ \
+      float \\ \
+      jknapltx \\ \
+      tools \\ \
+      collection-mathscience \\ \
+      mathtools \\ \
+      amsmath \\ \
+      amsfonts \\ \
+      enumitem \\ \
+      cancel \\ \
+      microtype \\ \
+      tcolorbox \\' Dockerfile-base
   ```
   
 - Construimos la imagen para ARM64, uso local y Docker Hub:
