@@ -132,6 +132,12 @@
   cd $HOME/overleaf
   docker build -t sharelatex -f server-ce/Dockerfile .
   ````
+
+- Cambiamos el Tag latest por el requerido por Overleaf-toolkit:
+- ```bash
+  TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
+  docker tag jaimito:latest jaimito:${TAG}
+  ```
   
 #  Subir imagen a Docker Hub (3 pasos)
 
