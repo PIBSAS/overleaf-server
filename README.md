@@ -1,4 +1,4 @@
-.<h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
+<h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
 
 <p align="center">
   <img src="overleaf.png" />
