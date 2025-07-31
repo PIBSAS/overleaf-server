@@ -90,33 +90,48 @@
   ````
 
 - Nos movemos al directorio:
-- ````
-  cd overleaf/server-ce/
-  ````
-- Construimos la imagen para uso local y Docker Hub:
+- ```bash
+  cd "$HOME/overleaf/server-ce"
+  ```
+
+- Modificar el ``Dockerfile-base`` para agregar soporte en español y paquetes adicionales de LaTeX.
+- ```bash
+  # Agregar el paquete hunspell-es al bloque de apt-get install
+  sed -i 's/\(qpdf \)\\/\1hunspell-es \\/' Dockerfile-base
+
+  # Agregar paquetes adicionales al bloque tlmgr install, después de 'xetex \'
+  sed -i '/^[[:space:]]*xetex[[:space:]]*\\$/a\
+      babel-spanish \\
+      hyphen-spanish \\
+      collection-langspanish \\
+      newunicodechar \\
+      float \\
+      jknapltx \\
+      tools \\
+      collection-mathscience \\
+      mathtools \\
+      amsmath \\
+      amsfonts \\
+      enumitem \\
+      cancel \\
+      microtype \\
+      tcolorbox \\
+  ' Dockerfile-base
+  ```
+  
+- Construimos la imagen para ARM64, uso local y Docker Hub:
 - ````
   DOCKER_BUILDKIT=1 docker build -t sharelatex-base:arm64 -f Dockerfile-base .
   ````
   
 - Modificar el ``Dockerfile`` para que use el port creado.
   Local:
-- ````
+- ````bash
   cd "$HOME/overleaf/server-ce"
   sed -i 's|^ARG OVERLEAF_BASE_TAG=.*|ARG OVERLEAF_BASE_TAG=sharelatex-base:arm64|' Dockerfile
-  awk '/^EXPOSE/ {
-      print;
-      print "# Paquetes adicionales para soporte en español";
-      print "RUN apt-get update && apt-get install -y hunspell-es && \\";
-      print "    tlmgr update --self && \\";
-      print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";
-      print "    tlmgr update --all && \\";
-      print "    apt-get clean && \\";
-      print "    rm -rf /var/lib/apt/lists/*";
-      next
-  }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
   ````
  
-- Construimos localmente y para Docker hub:
+- Construimos la imagen principal de sharelatex localmente y para Docker hub:
 - ````
   cd $HOME/overleaf
   docker build -t sharelatex -f server-ce/Dockerfile .
