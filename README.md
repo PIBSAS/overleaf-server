@@ -429,7 +429,7 @@ Tene en cuenta que Overleaf-toolkit se actualiza seguído, inicie este repo con 
 ---
 
 
-# Creación y subida a Docker Hub de la imagen mediante Script:
+# Creación y subida a Docker Hub de las imagenes mediante Script:
 
 - Creamos el grupo docker y agregamos al usuario:
   
