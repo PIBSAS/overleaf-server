@@ -62,6 +62,27 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Apply Spanish packages and extra LaTeX
+        run: |
+          cd overleaf/server-ce
+          sed -i 's/\(qpdf \)\\/\1hunspell-es \\/' Dockerfile-base
+          sed -i '/^[[:space:]]*xetex[[:space:]]*\\$/a\
+                babel-spanish \\ \
+                hyphen-spanish \\ \
+                collection-langspanish \\ \
+                newunicodechar \\ \
+                float \\ \
+                jknapltx \\ \
+                tools \\ \
+                collection-mathscience \\ \
+                mathtools \\ \
+                amsmath \\ \
+                amsfonts \\ \
+                enumitem \\ \
+                cancel \\ \
+                microtype \\ \
+                tcolorbox \\' Dockerfile-base
+                
       - name: Build and push sharelatex-base
         run: |
           cd overleaf
@@ -74,22 +95,11 @@ jobs:
             -f server-ce/Dockerfile-base \
             .
 
-      - name: Apply Spanish packages
+      - name: Point sharelatex Dockerfile to the recently built base image with Spanish and extra LaTeX packages
         run: |
           cd overleaf/server-ce
           sed -i 's|^FROM .*|FROM pibsas/sharelatex-base:arm64|' Dockerfile
-          awk '/^EXPOSE/ {
-              print;
-              print "# Spanish language support";
-              print "RUN apt-get update && apt-get install -y hunspell-es && \\";
-              print "    tlmgr update --self && \\";
-              print "    tlmgr install babel-spanish hyphen-spanish collection-langspanish newunicodechar float jknapltx tools collection-mathscience mathtools amsmath amsfonts enumitem cancel microtype tcolorbox && \\";
-              print "    tlmgr update --all && \\";
-              print "    apt-get clean && \\";
-              print "    rm -rf /var/lib/apt/lists/*";
-              next
-          }1' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
-
+      
       - name: Build and push main image
         run: |
           cd overleaf
