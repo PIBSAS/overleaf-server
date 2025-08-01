@@ -1,7 +1,7 @@
 <h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
 
 <p align="center">
-  <img src="overleaf.png" />
+  <img src="overleaf.png" style="width: 600px; max-width: 100%;" alt="Overleaf logo"/>
 </p>
 <h3 align="center"> Pasos completos!</h3>
 
