@@ -7,6 +7,7 @@
 
 # Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
 
+---
 
 ## LOS SIGUIENTES PASOS SON PARA USUARIO FINAL, QUE NO DESEA APRENDER, SOLO INSTALAR Y USAR EL SERVIDOR
 
@@ -20,6 +21,7 @@ El usuario debe realizar estos pasos si o sí:
   sudo groupadd docker
   sudo usermod -aG docker $USER
   ```
+  
   En Ubuntu Desktop debe instalar curl y gawk, finalmente reinicia el dispositivo. Si no usa Ubuntu saltear este comando:
   ```bash
   sudo apt install curl gawk -y && sudo reboot
@@ -32,16 +34,20 @@ El usuario debe realizar estos pasos si o sí:
 
 
 ### Limpieza por si falla algo (se cortó internet, hubo algun falló humano) y necesita reintentar, tras esto, intenta el paso anterior nuevamente:
+
 - ```bash
   USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/overpi_clean.sh)"
   ```
 Disfrute!
 
+
 ----
+
 
 ## LOS SIGUIENTES PASOS SON PARA USUARIO DESARROLLADOR, QUE DESEA APRENDER, Y NO SOLO INSTALAR Y USAR EL SERVIDOR
 
-- Requiere crear una cuenta gratuita en Docker Hub, así obtendras tu usuario y lo usarás en el comando ``USER_DOCK=el_usuario_que_creaste``
+
+- Requiere crear una cuenta gratuita en [Docker Hub](https://hub.docker.com/), así obtendras tu usuario y lo usarás en el comando ``USER_DOCK=el_usuario_que_creaste``
 
 
 ---
@@ -383,7 +389,7 @@ Esto se realiza abriendo otra Terminal e indicando el siguiente comando:
 # RESUMEN:
 
 ### Si reutilizas la imagen que subiste a Docker Hub los pasos se reducen a esto:
-Tene en cuenta que Overleaf-toolkit se actualiza seguído, inicie este repo con la versión 5.4.1 y hoy es la versión 5.5.3, lo cuál te obliga a actualizar tus imagenes en una reinstalacción, pero los pasos están bastante parametrizados para sortear esa dificultad, pero siempre tendras que volver a subir tu nueva imagen a tu Docker Hub. Es por eso que este repositorio genera mediante un GitHub Actions una construcción semanal, que si cambia la versión, se crea una nueva imagen, obviamente, esto lo hace una vez a la semana, al momento de crear el Actions estaba la versión 5.5.2, y a las horas estaba la versión 5.5.3, con lo cuál debía esperar 6 días aún para que se ejecutará solo, o hacerlo manualmente, pero eso requiere tiempo. Pero para el usuario "final" eso será un atasco hasta que pasen unos días o lo ejecute manualmente. Para el Usuario avanzado, esto jamás será un problema, porque hará cada paso. Para vos usuario avanzado podes ver en la carpeta ``.github/workflows`` el action.
+Tene en cuenta que Overleaf-toolkit se actualiza seguído, inicie este repo con la versión 5.4.1 y hoy es la versión 5.5.3, lo cuál te obliga a actualizar tus imagenes en una reinstalacción, pero los pasos están bastante parametrizados para sortear esa dificultad, pero siempre tendras que volver a subir tu nueva imagen a tu Docker Hub. Es por eso que este repositorio genera mediante un GitHub Actions una construcción semanal, que si cambia la versión, se crea una nueva imagen, obviamente, esto lo hace una vez a la semana, al momento de crear el Actions estaba la versión 5.5.2, y a las horas estaba la versión 5.5.3, con lo cuál debía esperar 6 días aún para que se ejecutará solo, o hacerlo manualmente, pero eso requiere tiempo. Pero para el usuario "final" eso será un atasco hasta que pasen unos días o lo ejecute manualmente. Para el Usuario avanzado, esto jamás será un problema, porque hará cada paso. Para vos usuario avanzado podes ver en la carpeta ``.github/workflows`` el action [overleaf.yaml](.github/workflows/overleaf.yml).
 
 
 
