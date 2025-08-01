@@ -457,6 +457,15 @@ Tene en cuenta que Overleaf-toolkit se actualiza seguído, inicie este repo con 
     USER_DOCK=pibsas bash -c "$(curl -sSL https://raw.githubusercontent.com/PIBSAS/overleaf-server/main/dockerhub.sh)"
     ```
 
+Solo te restará iniciar el Overleaf Toollkit.
+
+- ```bash
+     cd && cd ./overleaf-toolkit
+    ./bin/init
+    ./bin/up -d
+  ```
+
+
 ---
 
 
