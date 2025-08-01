@@ -1,4 +1,4 @@
-name: Build and Push Custom Overleaf (ARM64)
+name: DONT USE THIS; THE OTHER BETTER!
 
 on:
   workflow_dispatch:
