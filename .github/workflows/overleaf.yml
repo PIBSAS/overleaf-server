@@ -1,4 +1,4 @@
-name: Smart Overleaf Docker Build and Upload (ARM64)
+name: Smart Overleaf Docker Build and Upload (ARM64) for Raspberry Pi
 
 on:
   schedule:
