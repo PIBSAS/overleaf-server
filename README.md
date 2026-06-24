@@ -1,8 +1,11 @@
 <h1 align="center"> Overleaf Community Edition Server en Raspberry Pi</h1>
 
 <p align="center">
-  <img src="overleaf.png" style="width: 600px; max-width: 100%;" alt="Overleaf logo"/>
+  <a href="https://hub.docker.com/r/pibsas/sharelatex" target="_blank">
+  <img src="overleaf.png" style="width: 600px; max-width: 100%;" alt="Overleaf logo"/></a><br>
+  <a href="https://hub.docker.com/r/pibsas/sharelatex" target="_blank">Latest Docker Image for the Raspberry Pi</a>
 </p>
+
 <h3 align="center"> Pasos completos!</h3>
 
 # Ubuntu Server 25.04 y Pi OS Lite o Desktop en Raspberry Pi
