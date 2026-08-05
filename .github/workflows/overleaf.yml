@@ -1,8 +1,8 @@
 name: Smart Overleaf Docker Build and Upload (ARM64) for Raspberry Pi
 
 on:
-  schedule:
-    - cron: '0 0 */14 * *'
+#  schedule:
+ #   - cron: '0 0 */14 * *'
   workflow_dispatch:
 
 jobs:
