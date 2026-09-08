@@ -179,7 +179,7 @@ Tras construirse exitosamente, si pensamos en usar la imagen localmente en nuest
 
 - ```bash
   TAG=$(cat "$HOME/overleaf-toolkit/lib/config-seed/version")
-  docker tag sharlatex:latest sharelatex:${TAG}
+  docker tag sharelatex:latest sharelatex:${TAG}
   ```
   
   Si solo vas a usar tu imagen de Docker en forma local, salteate el siguiente paso!
