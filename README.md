@@ -175,6 +175,13 @@ Disfrute!
 
 Tras construirse exitosamente, si pensamos en usar la imagen localmente en nuestro dispositivo, debemos cambiar la etiqueta ``latest`` por la versión que exige Overleaf Toolkit para levantar el servidor, como esto cambia muy seguido, mejor parametrizarlo, asi siempre servira, mientras no cambien la forma de indicar la versión.
 
+Para ello necesitamos clonar dicho repositorio.
+
+- Clonar Overleaf Toolkit:
+  - ```bash
+    git clone https://github.com/overleaf/toolkit.git ./overleaf-toolkit
+    ```
+    
 - Cambiamos el Tag latest por el requerido por Overleaf-toolkit:
 
 - ```bash
@@ -224,7 +231,7 @@ Tras construirse exitosamente, si pensamos en usar la imagen localmente en nuest
 
 # Iniciamos Overleaf Server mediante el uso de Overleaf-Toolkit:
 
-Para ello necesitamos clonar dicho repositorio.
+Para ello necesitamos clonar dicho repositorio (Si no lo hicimos antes).
 
 - Clonar Overleaf Toolkit:
   - ```bash
